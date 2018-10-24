@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <About>
+        <Summary>Simple Hallways</Summary>
+    </About>
+
+     <ModSettings>
+            <MsPerTick>20</MsPerTick>
+            <!--<PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>-->
+     </ModSettings>
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <FlatWorldGenerator generatorString="3;7,1,2*3;3;"/>
+            <DrawingDecorator>
+            </DrawingDecorator>
+            <ServerQuitFromTimeUp timeLimitMs="100000"/>
+            <ServerQuitWhenAnyAgentFinishes/>
+        </ServerHandlers>
+    </ServerSection>
+    <AgentSection mode="Survival">
+        <Name>Hal5000</Name>
+        <AgentStart>
+            <Placement x="0.5" y="2" z="0.5" yaw="-90"/>
+        </AgentStart>
+        <AgentHandlers>
+            <AgentQuitFromTouchingBlockType>
+                <Block type="diamond_block"/>
+            </AgentQuitFromTouchingBlockType>
+            <RewardForTouchingBlockType>
+                <Block reward="10000.0" type="diamond_block" behaviour="onceOnly"/>
+                <Block reward="-10.0" type="dirt" behaviour="constant"/>
+            </RewardForTouchingBlockType>
+            <RewardForSendingCommand reward="-1" />
+            <DiscreteMovementCommands>
+                 <ModifierList type="allow-list">
+                    <command>movenorth</command>
+                    <command>moveeast</command>
+                    <command>movesouth</command>
+                    <command>movewest</command>
+                 </ModifierList>
+            </DiscreteMovementCommands>
+            <ObservationFromGrid>
+              <Grid name="floor3x3">
+                <min x="-1" y="-1" z="-1"/>
+                <max x="1" y="0" z="1"/>
+              </Grid>
+            </ObservationFromGrid>
+            <ObservationFromFullStats/>
+            <VideoProducer want_depth="false">
+              <Width>640</Width>
+              <Height>480</Height>
+            </VideoProducer>
+        </AgentHandlers>
+    </AgentSection>
+</Mission>
