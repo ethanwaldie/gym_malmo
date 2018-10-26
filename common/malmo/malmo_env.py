@@ -9,8 +9,8 @@ import gym
 from gym import spaces, error
 
 import MalmoPython
-import lib.malmo.malmo_server as minecraft_py
-from lib.malmo.position import AgentPositionOrientation
+import common.malmo.malmo_server as minecraft_py
+
 
 logger = logging.getLogger(__name__)
 
@@ -397,11 +397,11 @@ class MalmoEnvironment(gym.Env):
     def render(self, mode='human', close=False):
         pass
 
-    def reset(self):
+    def reset(self, force_reset=False):
 
         self.num_actions = 0
         # force new world each time
-        if self.forceWorldReset:
+        if self.forceWorldReset or force_reset:
             self.mission_spec.forceWorldReset()
 
         self.mission_spec = self._load_mission()

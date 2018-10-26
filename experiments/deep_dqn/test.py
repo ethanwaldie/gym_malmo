@@ -1,5 +1,5 @@
 import gym
-import lib.malmo.malmo_env
+
 
 env = gym.make('MinecraftBasic-v0')
 env.init(start_minecraft=True)

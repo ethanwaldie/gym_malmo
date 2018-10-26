@@ -11,19 +11,15 @@ from common.malmo.malmo_env import MalmoEnvironment
 logger = logging.getLogger(__name__)
 
 
-class SimpleHallwaysEnv(MalmoEnvironment):
+class KeysAndDoorsEnv(MalmoEnvironment):
     """
-    This environment represents the simplest of partially observable environments, an I
-    shaped set of hallways consisting of a south_hallway, a north_hallway and a connecting
-    hallway.
-
-    Based on: http://proceedings.mlr.press/v48/oh16.pdf
+    This environment
     """
 
     metadata = {'render.modes': []}
 
-    def __init__(self, hall_params:dict = None):
-        self._spec_path = os.path.join(os.path.dirname(__file__), "schemas/simple_hallways_mission.xml")
+    def __init__(self):
+        self._spec_path = os.path.join(os.path.dirname(__file__), "schemas/keys_and_doors_mission.xml")
 
         self.observation_space = spaces.Box(low=0, high=1, shape=(5,18),dtype=np.int32)
         super().__init__(parse_world_state=True)
@@ -32,31 +28,26 @@ class SimpleHallwaysEnv(MalmoEnvironment):
 
     def __draw_hallways(self):
 
-        # south hallway
+        # connecting +
         self.mission_spec.drawCuboid(5, 2, 0, 0, 3, 0, 'air')
-        self.mission_spec.drawCuboid(5, 2, 0, 5, 3, 10, 'air')
-        self.mission_spec.drawCuboid(10, 2, 10, 0, 3, 10, 'air')
+        self.mission_spec.drawCuboid(-5, 2, 0, 0, 3, 0, 'air')
+        self.mission_spec.drawCuboid(0, 2, 5, 0, 3, 0, 'air')
+        self.mission_spec.drawCuboid(0, 2, -5, 0, 3, 0, 'air')
 
+        # Goal Hallway
+        self.mission_spec.drawCuboid(5, 2, 4, 5, 3, 0, 'air')
 
-    def __draw_goals(self):
+    def __draw_rooms(self):
 
-        # clear old goals
-        self.mission_spec.drawBlock(10, 1, 10, 'stone')
-        self.mission_spec.drawBlock(10, 1, 0, 'stone')
-        self.mission_spec.drawBlock(0, 1, 10, 'stone')
+        # Three rooms
+        self.mission_spec.drawCuboid(-5, 2, -1, -7, 3, 1, 'air')
+        self.mission_spec.drawCuboid(-1, 2, 5, 1, 3, 7, 'air')
+        self.mission_spec.drawCuboid(-1, 2, -5, 1, 3, -7, 'air')
 
+    def __draw_levers_and_doors(self):
+        #self.mission_spec.drawBlock(5, 2, 1, 'wooden_door')
+        pass
 
-        goal_position = random.choice(['left', 'right'])
-
-        logger.info("Goal is on the {}".format(goal_position))
-
-
-        if goal_position == 'left':
-            self.mission_spec.drawBlock(10, 1, 10, 'diamond_block')
-            self.mission_spec.drawBlock(2, 1, 0, 'gold_block')
-        elif goal_position == 'right':
-            self.mission_spec.drawBlock(0, 1, 10, 'diamond_block')
-            self.mission_spec.drawBlock(2, 1, 0, 'redstone_block')
 
     def _load_mission(self, **kwargs):
         """
@@ -71,8 +62,9 @@ class SimpleHallwaysEnv(MalmoEnvironment):
 
         self.mission_spec = MalmoPython.MissionSpec(mission_spec, True)
 
-        self.__draw_hallways()
-        self.__draw_goals()
+        #self.__draw_hallways()
+        #self.__draw_rooms()
+        #self.__draw_levers_and_doors()
 
         return self.mission_spec
 
@@ -98,3 +90,20 @@ class SimpleHallwaysEnv(MalmoEnvironment):
             obs.append(obs_map[block])
 
         return np.array(obs, dtype=np.int32), sum([r.getValue() for r in world_state.rewards])
+
+    def seed(self, seed=None):
+        pass
+
+
+if __name__ == '__main__':
+    import gym
+    env = KeysAndDoorsEnv()
+    env.init(start_minecraft=False)
+    env.reset(force_reset=True)
+    done = False
+
+    env.render(mode="human")
+    action = env.action_space.sample()
+    obs, reward, done, info = env.step(action)
+
+    env.close()

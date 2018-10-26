@@ -6,7 +6,7 @@ import json
 import numpy as np
 from gym import spaces
 
-from lib.malmo.malmo_env import MalmoEnvironment
+from common.malmo.malmo_env import MalmoEnvironment
 
 logger = logging.getLogger(__name__)
 
