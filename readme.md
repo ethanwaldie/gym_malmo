@@ -1,5 +1,5 @@
 ## Gym Malmo 
-#####A collection of Mincraft based environments for conducting reinforcement learning experiments under partial observability.
+A collection of Mincraft based environments for conducting reinforcement learning experiments under partial observability.
 
 
 #### Partial Observability 
