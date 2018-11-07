@@ -1,65 +1,61 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-    <About>
-        <Summary>Keys and Doors</Summary>
-    </About>
-
-     <ModSettings>
-            <MsPerTick>20</MsPerTick>
-            <!--<PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>-->
-     </ModSettings>
-
-    <ServerSection>
-        <ServerInitialConditions>
-            <Time>
-                <StartTime>6000</StartTime>
-                <AllowPassageOfTime>false</AllowPassageOfTime>
-            </Time>
-        </ServerInitialConditions>
-        <ServerHandlers>
-            <FlatWorldGenerator generatorString="3;7,1,2*3;3;"/>
-            <DrawingDecorator>
-                <DrawBlock x="5" y="2" z="1" type="redstone_block"/>
-                <DrawBlock x="5" y="3" z="1" type="redstone_block"/>
-            </DrawingDecorator>
-            <ServerQuitFromTimeUp timeLimitMs="100000"/>
-            <ServerQuitWhenAnyAgentFinishes/>
-        </ServerHandlers>
-    </ServerSection>
-    <AgentSection mode="Survival">
-        <Name>Hal5000</Name>
-        <AgentStart>
-            <Placement x="0.5" y="2" z="0.5" yaw="-90"/>
-        </AgentStart>
-        <AgentHandlers>
-            <AgentQuitFromTouchingBlockType>
-                <Block type="diamond_block"/>
-            </AgentQuitFromTouchingBlockType>
-            <RewardForTouchingBlockType>
-                <Block reward="10000.0" type="diamond_block" behaviour="onceOnly"/>
-                <Block reward="-10.0" type="dirt" behaviour="constant"/>
-            </RewardForTouchingBlockType>
-            <RewardForSendingCommand reward="-1" />
-            <DiscreteMovementCommands>
-                 <ModifierList type="allow-list">
-                    <command>movenorth</command>
-                    <command>moveeast</command>
-                    <command>movesouth</command>
-                    <command>movewest</command>
-                 </ModifierList>
-            </DiscreteMovementCommands>
-            <ObservationFromGrid>
-              <Grid name="floor3x3">
-                <min x="-1" y="-1" z="-1"/>
-                <max x="1" y="0" z="1"/>
-              </Grid>
-            </ObservationFromGrid>
-            <ObservationFromFullStats/>
-            <VideoProducer want_depth="false">
-              <Width>640</Width>
-              <Height>480</Height>
-            </VideoProducer>
-        </AgentHandlers>
-    </AgentSection>
-</Mission>
+<?xml version="1.0" ?>
+<ns1:Mission xmlns:ns1="http://ProjectMalmo.microsoft.com">
+    <ns1:About>
+        <ns1:Summary>Keys and Doors</ns1:Summary>
+    </ns1:About>
+    <ns1:ModSettings>
+        <ns1:MsPerTick>20</ns1:MsPerTick>
+    </ns1:ModSettings>
+    <ns1:ServerSection>
+        <ns1:ServerInitialConditions>
+            <ns1:Time>
+                <ns1:StartTime>6000</ns1:StartTime>
+                <ns1:AllowPassageOfTime>false</ns1:AllowPassageOfTime>
+            </ns1:Time>
+        </ns1:ServerInitialConditions>
+        <ns1:ServerHandlers>
+            <ns1:FlatWorldGenerator generatorString="3;7,1,2*3;3;"/>
+            <ns1:DrawingDecorator>
+                <ns1:DrawBlock type="wooden_door" variant="lower" x="5" y="2" z="2"/>
+                <ns1:DrawBlock type="wooden_door" variant="upper" x="5" y="3" z="2"/>
+            </ns1:DrawingDecorator>
+            <ns1:ServerQuitFromTimeUp timeLimitMs="100000.0"/>
+            <ns1:ServerQuitWhenAnyAgentFinishes/>
+        </ns1:ServerHandlers>
+    </ns1:ServerSection>
+    <ns1:AgentSection mode="Survival">
+        <ns1:Name>Hal5000</ns1:Name>
+        <ns1:AgentStart>
+            <ns1:Placement x="0.5" y="2.0" yaw="-90.0" z="0.5"/>
+        </ns1:AgentStart>
+        <ns1:AgentHandlers>
+            <ns1:ObservationFromFullStats/>
+            <ns1:ObservationFromGrid>
+                <ns1:Grid name="floor3x3">
+                    <ns1:min x="-1.0" y="-1.0" z="-1.0"/>
+                    <ns1:max x="1.0" y="0.0" z="1.0"/>
+                </ns1:Grid>
+            </ns1:ObservationFromGrid>
+            <ns1:VideoProducer want_depth="false">
+                <ns1:Width>640</ns1:Width>
+                <ns1:Height>480</ns1:Height>
+            </ns1:VideoProducer>
+            <ns1:RewardForTouchingBlockType>
+                <ns1:Block behaviour="onceOnly" reward="10000.0" type="diamond_block"/>
+                <ns1:Block behaviour="constant" reward="-10.0" type="dirt"/>
+            </ns1:RewardForTouchingBlockType>
+            <ns1:RewardForSendingCommand reward="-1.0"/>
+            <ns1:DiscreteMovementCommands>
+                <ns1:ModifierList type="allow-list">
+                    <ns1:command>movenorth</ns1:command>
+                    <ns1:command>moveeast</ns1:command>
+                    <ns1:command>movesouth</ns1:command>
+                    <ns1:command>movewest</ns1:command>
+                </ns1:ModifierList>
+            </ns1:DiscreteMovementCommands>
+            <ns1:AgentQuitFromTouchingBlockType>
+                <ns1:Block type="diamond_block"/>
+            </ns1:AgentQuitFromTouchingBlockType>
+        </ns1:AgentHandlers>
+    </ns1:AgentSection>
+</ns1:Mission>

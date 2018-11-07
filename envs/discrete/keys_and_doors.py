@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 class KeysAndDoorsEnv(MalmoEnvironment):
     """
-    This environment
+    This environment focuses on an agents ability to remember and make connections between tasks in an environment.
+
+    There are two levers that each operate two doors. The agent needs to
     """
 
     metadata = {'render.modes': []}
