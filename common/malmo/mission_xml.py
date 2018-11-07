@@ -31,7 +31,11 @@ class MissionSpec():
         self.mission = CreateFromDocument(xml_text)
 
     def __str__(self):
-        return self.mission.toxml()
+        xml_text = self.mission.toxml()
+        xml_text = re.sub(':ns1', '', xml_text, count=1)
+        xml_text = re.sub('ns1:', '', xml_text)
+        return xml_text
+
 
     def __repr__(self):
         try:

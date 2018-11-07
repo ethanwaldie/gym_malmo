@@ -16,8 +16,7 @@
         <ns1:ServerHandlers>
             <ns1:FlatWorldGenerator generatorString="3;7,1,2*3;3;"/>
             <ns1:DrawingDecorator>
-                <ns1:DrawBlock type="wooden_door" variant="lower" x="5" y="2" z="2"/>
-                <ns1:DrawBlock type="wooden_door" variant="upper" x="5" y="3" z="2"/>
+                <ns1:DrawBlock type="air" x="0" y="0" z="0"/>
             </ns1:DrawingDecorator>
             <ns1:ServerQuitFromTimeUp timeLimitMs="100000.0"/>
             <ns1:ServerQuitWhenAnyAgentFinishes/>

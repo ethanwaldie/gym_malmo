@@ -7,6 +7,8 @@ import numpy as np
 from gym import spaces
 
 from common.malmo.malmo_env import MalmoEnvironment
+from common.malmo.mission_xml import MissionSpec
+from common.malmo.drawing_utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -23,33 +25,50 @@ class KeysAndDoorsEnv(MalmoEnvironment):
     def __init__(self):
         self._spec_path = os.path.join(os.path.dirname(__file__), "schemas/keys_and_doors_mission.xml")
 
-        self.observation_space = spaces.Box(low=0, high=1, shape=(5,18),dtype=np.int32)
+        self.observation_space = spaces.Box(low=0, high=1, shape=(5, 18), dtype=np.int32)
         super().__init__(parse_world_state=True)
 
-
-
     def __draw_hallways(self):
+        hallways = []
 
-        # connecting +
-        self.mission_spec.drawCuboid(5, 2, 0, 0, 3, 0, 'air')
-        self.mission_spec.drawCuboid(-5, 2, 0, 0, 3, 0, 'air')
-        self.mission_spec.drawCuboid(0, 2, 5, 0, 3, 0, 'air')
-        self.mission_spec.drawCuboid(0, 2, -5, 0, 3, 0, 'air')
+        hallways.append(
+            build_element(malmo_types.DrawCuboid, x1=5, y1=2, z1=0, x2=0, y2=3, z2=0,type=malmo_types.BlockType.air))
+        hallways.append(
+            build_element(malmo_types.DrawCuboid, x1=-5, y1=2, z1=0, x2=0, y2=3, z2=0, type=malmo_types.BlockType.air))
+        hallways.append(
+            build_element(malmo_types.DrawCuboid, x1=0, y1=2, z1=5, x2=0, y2=3, z2=0, type=malmo_types.BlockType.air))
+        hallways.append(
+            build_element(malmo_types.DrawCuboid, x1=0, y1=2, z1=-5, x2=0, y2=3, z2=0, type=malmo_types.BlockType.air))
 
         # Goal Hallway
-        self.mission_spec.drawCuboid(5, 2, 4, 5, 3, 0, 'air')
+        hallways.append(
+            build_element(malmo_types.DrawCuboid, x1=5, y1=2, z1=-4, x2=5, y2=3, z2=0, type=malmo_types.BlockType.air))
+
+        self.mission_spec.append_objects_to_drawing_decorator(hallways)
 
     def __draw_rooms(self):
 
-        # Three rooms
-        self.mission_spec.drawCuboid(-5, 2, -1, -7, 3, 1, 'air')
-        self.mission_spec.drawCuboid(-1, 2, 5, 1, 3, 7, 'air')
-        self.mission_spec.drawCuboid(-1, 2, -5, 1, 3, -7, 'air')
+        rooms = []
+
+        rooms.append(
+            build_element(malmo_types.DrawCuboid, x1=-5, y1=2, z1=-1, x2=-7, y2=3, z2=1, type=malmo_types.BlockType.air)
+        )
+        rooms.append(
+            build_element(malmo_types.DrawCuboid, x1=-1, y1=2, z1=5, x2=1, y2=3, z2=7, type=malmo_types.BlockType.air)
+        )
+        rooms.append(
+            build_element(malmo_types.DrawCuboid, x1=-1, y1=2, z1=-5, x2=1, y2=3, z2=-7, type=malmo_types.BlockType.air)
+        )
+
+        self.mission_spec.append_objects_to_drawing_decorator(rooms)
 
     def __draw_levers_and_doors(self):
-        #self.mission_spec.drawBlock(5, 2, 1, 'wooden_door')
-        pass
 
+        doors_and_levers = []
+
+        doors_and_levers += DrawDoor(x=5, y=2, z=-2)
+
+        self.mission_spec.append_objects_to_drawing_decorator(doors_and_levers)
 
     def _load_mission(self, **kwargs):
         """
@@ -59,19 +78,16 @@ class KeysAndDoorsEnv(MalmoEnvironment):
         :return:
         """
 
-        with open(self._spec_path, 'r') as f:
-            mission_spec = f.read()
+        self.mission_spec = MissionSpec(self._spec_path)
 
-        self.mission_spec = MalmoPython.MissionSpec(mission_spec, True)
+        self.__draw_hallways()
+        self.__draw_rooms()
+        self.__draw_levers_and_doors()
 
-        #self.__draw_hallways()
-        #self.__draw_rooms()
-        #self.__draw_levers_and_doors()
 
-        return self.mission_spec
+        return MalmoPython.MissionSpec(str(self.mission_spec), True)
 
     def _world_state_parser(self, world_state):
-
         obs_map = {
             "stone": [1, 0, 0, 0, 0],
             "dirt": [1, 0, 0, 0, 0],
@@ -80,7 +96,6 @@ class KeysAndDoorsEnv(MalmoEnvironment):
             "gold_block": [0, 0, 0, 1, 0],
             "diamond_block": [0, 0, 0, 0, 1]
         }
-
 
         observations = self._get_observation(world_state)
 
@@ -99,6 +114,7 @@ class KeysAndDoorsEnv(MalmoEnvironment):
 
 if __name__ == '__main__':
     import gym
+
     env = KeysAndDoorsEnv()
     env.init(start_minecraft=False)
     env.reset(force_reset=True)
