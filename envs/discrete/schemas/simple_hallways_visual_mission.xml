@@ -41,7 +41,7 @@
             <RewardForSendingCommand reward="-1"/>
             <DiscreteMovementCommands>
                 <ModifierList type="allow-list">
-                    <command>move</command>a
+                    <command>move</command>
                     <command>turn</command>
                 </ModifierList>
             </DiscreteMovementCommands>
