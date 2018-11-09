@@ -18,7 +18,7 @@ def callback(lcl, _glb):
 
 act = deepq.learn(
     env,
-    network='cnn',
+    network='cnn_small',
     lr=1e-3,
     total_timesteps=20000,
     buffer_size=10000,
