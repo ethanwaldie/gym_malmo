@@ -1,12 +1,5 @@
 import gym
 import logging
-import matplotlib.pyplot as plt
-from matplotlib import style
-
-style.use('fivethirtyeight')
-
-plt.axis([0, 10000, 0, 600])
-
 from baselines import deepq, a2c
 
 from envs.discrete.simple_hallways_visual import SimpleHallwaysVisualEnv
