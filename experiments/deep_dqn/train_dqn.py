@@ -4,7 +4,7 @@ from baselines import deepq, a2c
 
 from envs.discrete.simple_hallways_visual import SimpleHallwaysVisualEnv
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 env = SimpleHallwaysVisualEnv()
