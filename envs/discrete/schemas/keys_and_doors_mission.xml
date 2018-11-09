@@ -46,10 +46,9 @@
             <ns1:RewardForSendingCommand reward="-1.0"/>
             <ns1:DiscreteMovementCommands>
                 <ns1:ModifierList type="allow-list">
-                    <ns1:command>movenorth</ns1:command>
-                    <ns1:command>moveeast</ns1:command>
-                    <ns1:command>movesouth</ns1:command>
-                    <ns1:command>movewest</ns1:command>
+                    <ns1:command>move</ns1:command>a
+                    <ns1:command>turn</ns1:command>
+                    <ns1:command>use</ns1:command>
                 </ns1:ModifierList>
             </ns1:DiscreteMovementCommands>
             <ns1:AgentQuitFromTouchingBlockType>

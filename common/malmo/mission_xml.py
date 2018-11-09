@@ -28,8 +28,8 @@ class MissionSpec():
             xml_text = f.read()
         self.path = path
 
-        self.mission = CreateFromDocument(xml_text)
 
+        self.mission = CreateFromDocument(xml_text)
     def __str__(self):
         xml_text = self.mission.toxml()
         xml_text = re.sub(':ns1', '', xml_text, count=1)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     mission_spec = MissionSpec(path=path)
 
-    mission_spec.append_objects_to_drawing_decorator(DrawDoor(x=5, y=2, z=2))
+    mission_spec.append_objects_to_drawing_decorator(draw_door(x=5, y=2, z=2))
 
     mission_spec.save(path)
 

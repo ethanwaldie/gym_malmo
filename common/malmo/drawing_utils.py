@@ -15,7 +15,8 @@ def build_element(element, **kwargs):
     return obj
 
 
-def DrawDoor(x: int, y: int, z: int, type: malmo_types.BlockType = malmo_types.BlockType.wooden_door):
+def draw_door(x: int, y: int, z: int, type: malmo_types.BlockType = malmo_types.BlockType.wooden_door) -> [
+    malmo_types.DrawBlock]:
     """
     Draws a Door, where x,y,z specifies the bottom of the door.
 
@@ -41,3 +42,23 @@ def DrawDoor(x: int, y: int, z: int, type: malmo_types.BlockType = malmo_types.B
                         z=z)
 
     return [bottom, top]
+
+
+def draw_connected_points(vertices: [dict], type: malmo_types.BlockType = malmo_types.BlockType.air) -> [
+    malmo_types.DrawLine]:
+    """
+    Connects all the vertices with a line.
+
+    :param vertices:
+    :param type:
+    :return:
+    """
+    lines = []
+
+    for i in range(len(vertices) - 1):
+        start = {key + "1": value for key, value in vertices[i].items()}
+        end = {key + "2": value for key, value in vertices[i + 1].items()}
+
+        lines.append(build_element(malmo_types.DrawLine, **start, **end, type=type))
+
+    return lines
