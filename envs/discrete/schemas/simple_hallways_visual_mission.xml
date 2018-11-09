@@ -5,10 +5,10 @@
         <Summary>Simple Hallways</Summary>
     </About>
 
-     <ModSettings>
-            <MsPerTick>20</MsPerTick>
-            <!--<PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>-->
-     </ModSettings>
+    <ModSettings>
+        <MsPerTick>5</MsPerTick>
+        <!--<PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>-->
+    </ModSettings>
 
     <ServerSection>
         <ServerInitialConditions>
@@ -38,20 +38,17 @@
                 <Block reward="10000.0" type="diamond_block" behaviour="onceOnly"/>
                 <Block reward="-10.0" type="dirt" behaviour="constant"/>
             </RewardForTouchingBlockType>
-            <RewardForSendingCommand reward="-1" />
+            <RewardForSendingCommand reward="-1"/>
             <DiscreteMovementCommands>
-                 <ModifierList type="allow-list">
-                     <command>movenorth</command>
-                     <command>moveeast</command>
-                     <command>movesouth</command>
-                     <command>movewest</command>
-                     <command>look</command>
-                 </ModifierList>
+                <ModifierList type="allow-list">
+                    <command>move</command>a
+                    <command>turn</command>
+                </ModifierList>
             </DiscreteMovementCommands>
             <ObservationFromFullStats/>
             <VideoProducer want_depth="false">
-              <Width>640</Width>
-              <Height>480</Height>
+                <Width>640</Width>
+                <Height>480</Height>
             </VideoProducer>
         </AgentHandlers>
     </AgentSection>
