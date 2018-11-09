@@ -15,7 +15,7 @@ env.init(start_minecraft=False,
 
 def callback(lcl, _glb):
     # stop training if reward exceeds 199
-    is_solved = sum(lcl['episode_rewards'][-101:-1]) / 100 >= 0
+    is_solved = sum(lcl['episode_rewards'][-101:-1]) / 100 >= 100
     return is_solved
 
 act = deepq.learn(
