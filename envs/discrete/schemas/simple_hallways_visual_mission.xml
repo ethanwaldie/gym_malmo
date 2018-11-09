@@ -28,14 +28,15 @@
     <AgentSection mode="Survival">
         <Name>Hal5000</Name>
         <AgentStart>
-            <Placement x="0.5" y="2" z="0.5" yaw="-90"/>
+            <Placement x="0.5" y="2
+" z="0.5" yaw="-90"/>
         </AgentStart>
         <AgentHandlers>
             <AgentQuitFromTouchingBlockType>
                 <Block type="diamond_block"/>
             </AgentQuitFromTouchingBlockType>
             <RewardForTouchingBlockType>
-                <Block reward="10000.0" type="diamond_block" behaviour="onceOnly"/>
+                <Block reward="1000.0" type="diamond_block" behaviour="onceOnly"/>
                 <Block reward="-10.0" type="dirt" behaviour="constant"/>
             </RewardForTouchingBlockType>
             <RewardForSendingCommand reward="-1"/>

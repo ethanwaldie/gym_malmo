@@ -391,7 +391,6 @@ class MalmoEnvironment(gym.Env):
 
         if done:
             logger.info("Number of actions in iteration {}".format(self.num_actions))
-        logger.info(reward)
         return obs, reward, done, info
 
     def render(self, mode='human', close=False):
