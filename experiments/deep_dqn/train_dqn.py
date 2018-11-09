@@ -25,10 +25,10 @@ def callback(lcl, _glb):
 
 act = deepq.learn(
     env,
-    network='cnn_small',
+    network='cnn',
     lr=1e-3,
-    total_timesteps=100000,
-    buffer_size=50000,
+    total_timesteps=20000,
+    buffer_size=10000,
     exploration_fraction=0.1,
     exploration_final_eps=0.02,
     checkpoint_freq=50,
