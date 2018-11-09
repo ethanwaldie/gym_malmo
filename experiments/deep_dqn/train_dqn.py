@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 env = SimpleHallwaysVisualEnv()
 
-env.init(start_minecraft=False)
+env.init(start_minecraft=False,
+         recordDestination='recording.tgz',
+         recordMP4=(10, 400000))
 
 def callback(lcl, _glb):
     # stop training if reward exceeds 199
