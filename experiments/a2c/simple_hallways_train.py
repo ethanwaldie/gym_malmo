@@ -3,19 +3,26 @@ import logging
 import traceback
 import argparse
 
+# ------- PARSE ARGUMENTS --------
+
+from experiments.env_args import add_standard_env_args
+from experiments.a2c.a2c_args import add_a2c_args
+
+parser = argparse.ArgumentParser(description='Trains the A2C model on the SimpleHallwaysEnv')
+
+parser = add_standard_env_args(parser)
+parser = add_a2c_args(parser)
+args = parser.parse_args()
+
+# ---------------------------
+
 from common.notifier.telegram_notifier import send_message
 from baselines.a2c import a2c
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 
 from envs.discrete.simple_hallways import SimpleHallwaysEnv
 
-from experiments.env_args import add_standard_env_args
-from experiments.a2c.a2c_args import add_a2c_args
-parser = argparse.ArgumentParser(description='Trains the A2C model on the SimpleHallwaysEnv')
 
-parser = add_standard_env_args(parser)
-parser = add_a2c_args(parser)
-args = parser.parse_args()
 
 logging.basicConfig(level=args.log_level)
 logger = logging.getLogger(__name__)
