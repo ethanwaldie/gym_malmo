@@ -25,7 +25,7 @@ class SimpleHallwaysEnv(MalmoEnvironment):
     def __init__(self, hall_params:dict = None):
         self._spec_path = os.path.join(os.path.dirname(__file__), "schemas/simple_hallways_mission.xml")
 
-        self.observation_space = spaces.Box(low=0, high=1, shape=(5,18),dtype=np.int32)
+        self.observation_space = spaces.Box(low=0, high=1, shape=(18,5),dtype=np.int32)
         super().__init__(parse_world_state=True)
 
 

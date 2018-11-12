@@ -6,7 +6,7 @@
     </About>
 
      <ModSettings>
-            <MsPerTick>20</MsPerTick>
+            <MsPerTick>5</MsPerTick>
             <!--<PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>-->
      </ModSettings>
 
