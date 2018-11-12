@@ -8,7 +8,7 @@ from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 
 from envs.discrete.simple_hallways import SimpleHallwaysEnv
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 env = SimpleHallwaysEnv()
