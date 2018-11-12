@@ -19,5 +19,4 @@ def send_message(message_text, user="admin"):
 
     with requests.Session() as s:
         resp = s.post(telegram_message_api + params)
-    print(resp)
 
