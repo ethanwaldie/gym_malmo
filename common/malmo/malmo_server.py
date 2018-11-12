@@ -17,19 +17,20 @@ logger = logging.getLogger(__name__)
 
 # if a global Malmo installation exists, use that
 if "MALMO_MINECRAFT_ROOT" in os.environ:
-    malmo_dir = os.environ["MALMO_MINECRAFT_ROOT"]
+    minecraft_dir = os.environ["MALMO_MINECRAFT_ROOT"]
 elif "MALMO_XSD_PATH" in os.environ:
     malmo_xsd_path = os.environ["MALMO_XSD_PATH"]
     malmo_dir = os.path.dirname(malmo_xsd_path)
+    minecraft_dir = os.path.join(malmo_dir, 'Minecraft')
 # otherwise, use the local Malmo installation
 else:
     malmo_dir = os.path.join(os.path.dirname(__file__), 'Malmo')
     # set MALMO_XSD_PATH environment variable
     malmo_xsd_path = os.path.join(malmo_dir, 'Schemas')
     os.environ['MALMO_XSD_PATH'] = malmo_xsd_path
+    minecraft_dir = os.path.join(malmo_dir, 'Minecraft')
 
 # determine Malmo location and executable name
-minecraft_dir = os.path.join(malmo_dir, 'Minecraft')
 if platform.system() == 'Windows':
     mc_command = os.path.join(minecraft_dir, 'launchClient.bat')
 else:
