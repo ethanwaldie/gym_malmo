@@ -20,6 +20,8 @@ if "MALMO_XSD_PATH" in os.environ:
     malmo_xsd_path = os.environ["MALMO_XSD_PATH"]
     malmo_dir = os.path.dirname(malmo_xsd_path)
 # otherwise, use the local Malmo installation
+elif "MALMO_MINECRAFT_ROOT" in os.environ:
+    malmo_dir = os.environ["MALMO_MINECRAFT_ROOT"]
 else:
     malmo_dir = os.path.join(os.path.dirname(__file__), 'Malmo')
     # set MALMO_XSD_PATH environment variable
@@ -31,11 +33,10 @@ minecraft_dir = os.path.join(malmo_dir, 'Minecraft')
 if platform.system() == 'Windows':
     mc_command = os.path.join(minecraft_dir, 'launchClient.bat')
 else:
-    mc_command = os.path.join(minecraft_dir, 'launchClient.sh')
-
-# add MalmoPython to PYTHONPATH
-malmo_python_path = os.path.join(malmo_dir, 'Python_Examples')
-sys.path.append(malmo_python_path)
+    if "DISPLAY" in os.environ:
+        mc_command = os.path.join(minecraft_dir, 'launchClient.sh')
+    else:
+        mc_command = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24'" + os.path.join(minecraft_dir, 'launchClient.sh')
 
 def is_port_taken(port, address='0.0.0.0'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
