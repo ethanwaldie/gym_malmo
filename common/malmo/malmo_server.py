@@ -17,9 +17,7 @@ logger = logging.getLogger(__name__)
 
 # if a global Malmo installation exists, use that
 if "MALMO_MINECRAFT_ROOT" in os.environ:
-    #TODO Fix this Hack its not good
     minecraft_dir = os.environ["MALMO_MINECRAFT_ROOT"]
-    minecraft_dir = 'miniconda3' + minecraft_dir.split('miniconda3')[-1]
 elif "MALMO_XSD_PATH" in os.environ:
     malmo_xsd_path = os.environ["MALMO_XSD_PATH"]
     malmo_dir = os.path.dirname(malmo_xsd_path)
@@ -39,7 +37,7 @@ else:
     if "DISPLAY" in os.environ:
         mc_command = os.path.join(minecraft_dir, 'launchClient.sh')
     else:
-        mc_command = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' sh " + os.path.join(minecraft_dir, 'launchClient.sh')
+        mc_command = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ." + os.path.join(minecraft_dir, 'launchClient.sh')
 
 def is_port_taken(port, address='0.0.0.0'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,7 +74,7 @@ def start(port=None):
                 # pipe entire output
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 # use process group, see http://stackoverflow.com/a/4791612/18576
-                preexec_fn=os.setsid)
+                preexec_fn=os.setsid, shell=True)
     # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
     while True:
         line = proc.stdout.readline()
