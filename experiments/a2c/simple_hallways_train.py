@@ -2,7 +2,6 @@ import gym
 import logging
 import traceback
 
-
 from common.notifier.telegram_notifier import send_message
 from baselines.a2c import a2c
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv

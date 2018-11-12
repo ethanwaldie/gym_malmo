@@ -76,4 +76,8 @@ are for Python 3.6 on Mac OSX.
        # dependancies for the baselines. 
        python setup.py install
     ```
-    
+#### Running 
+
+In order to run the minecraft client on a machine in a headless mode, you can use the following command. 
+
+```xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ./launchClient.sh```
