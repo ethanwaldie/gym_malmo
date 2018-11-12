@@ -24,7 +24,7 @@ def add_a2c_args(parser):
                         help='float, RMSProp epsilon (stabilizes square root computation in denominator of RMSProp update) (default: 1e-5)')
     parser.add_argument('--alpha', type=float, default=0.99, help='float, RMSProp decay parameter (default: 0.99)')
     parser.add_argument('--gamma', type=float, default=0.99, help='float, reward discounting parameter (default: 0.99)')
-    parser.add_argument('--network', type=float, default=0.99, help="policy network architecture. Either string (mlp, lstm, lnlstm, cnn_lstm, cnn, cnn_small, conv_only - see baselines.common/models.py for full list)"
+    parser.add_argument('--network', type=str, default=0.99, help="policy network architecture. Either string (mlp, lstm, lnlstm, cnn_lstm, cnn, cnn_small, conv_only - see baselines.common/models.py for full list)"
                         "specifying the standard network architecture, or a function that takes tensorflow tensor as input and returns'"
                         "tuple (output_tensor, extra_feed) where output tensor is the last network layer output, extra_feed is None for feed-forward"
                         "neural nets, and extra_feed is a dictionary describing how to feed state into the network for recurrent neural nets."
