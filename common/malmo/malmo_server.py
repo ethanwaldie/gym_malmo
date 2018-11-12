@@ -16,12 +16,12 @@ from https://github.com/tambetm/minecraft-py
 logger = logging.getLogger(__name__)
 
 # if a global Malmo installation exists, use that
-if "MALMO_XSD_PATH" in os.environ:
+if "MALMO_MINECRAFT_ROOT" in os.environ:
+    malmo_dir = os.environ["MALMO_MINECRAFT_ROOT"]
+elif "MALMO_XSD_PATH" in os.environ:
     malmo_xsd_path = os.environ["MALMO_XSD_PATH"]
     malmo_dir = os.path.dirname(malmo_xsd_path)
 # otherwise, use the local Malmo installation
-elif "MALMO_MINECRAFT_ROOT" in os.environ:
-    malmo_dir = os.environ["MALMO_MINECRAFT_ROOT"]
 else:
     malmo_dir = os.path.join(os.path.dirname(__file__), 'Malmo')
     # set MALMO_XSD_PATH environment variable
