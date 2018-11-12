@@ -29,7 +29,7 @@ try:
         env=vec_env,
         seed=None,
         nsteps=5,
-        total_timesteps=int(80e6),
+        total_timesteps=100000,
         vf_coef=0.5,
         ent_coef=0.01,
         max_grad_norm=0.5,
@@ -46,3 +46,4 @@ try:
     act.save("simple_hallways_a2c_model.pkl")
 except:
     send_message("A2C Experiment Failing ```{}```".format(traceback.format_exc()))
+    logger.exception("Failed in Training A2C")

@@ -18,5 +18,5 @@ def send_message(message_text, user="admin"):
     params ="sendMessage?text={}&chat_id={}".format(message_text, chat_id)
 
     with requests.Session() as s:
-        resp = s.post(telegram_message_api + params)
+        s.post(telegram_message_api + params)
 
