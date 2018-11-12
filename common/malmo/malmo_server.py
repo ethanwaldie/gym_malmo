@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 
 # if a global Malmo installation exists, use that
 if "MALMO_MINECRAFT_ROOT" in os.environ:
+    #TODO Fix this Hack its not good
     minecraft_dir = os.environ["MALMO_MINECRAFT_ROOT"]
+    minecraft_dir = 'miniconda3' + minecraft_dir.split('miniconda3')[-1]
 elif "MALMO_XSD_PATH" in os.environ:
     malmo_xsd_path = os.environ["MALMO_XSD_PATH"]
     malmo_dir = os.path.dirname(malmo_xsd_path)
