@@ -1,7 +1,7 @@
 def add_a2c_args(parser):
     parser.add_argument('--seed', type=int, default=None,
                         help='seed to make random number sequence in the alorightm reproducible. By default is None which means seed from system noise generator (not reproducible')
-    parser.add_argument('--nsteps', type=int, default=100,
+    parser.add_argument('--nsteps', type=int, default=5,
                         help='int, number of steps of the vectorized environment per update (i.e. batch size is nsteps * nenv where'
                              'nenv is number of environment copies simulated in parallel)')
     parser.add_argument('--total_timesteps', type=int, default=100000,
