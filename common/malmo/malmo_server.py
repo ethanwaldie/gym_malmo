@@ -37,7 +37,8 @@ else:
     if "DISPLAY" in os.environ:
         mc_command = os.path.join(minecraft_dir, 'launchClient.sh')
     else:
-        mc_command = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ." + os.path.join(minecraft_dir, 'launchClient.sh')
+        mc_command = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ./miniconda3/envs/malmo/Minecraft/launchClient.sh"
+        #mc_command = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ." + os.path.join(minecraft_dir, 'launchClient.sh')
 
 def is_port_taken(port, address='0.0.0.0'):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
