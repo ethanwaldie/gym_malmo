@@ -3,10 +3,10 @@ import argparse
 def add_standard_env_args(parser):
     parser.add_argument('--tick_speed', type=int,
                         default=20,
-                        help='Tick Speed of the Malmo Client in ms')
+                        help='Tick Speed of the Malmo Client in ms (default is 20ms)')
     parser.add_argument('--log_level', type=int,
                         default='DEBUG',
-                        help='Python Logging level EG: INFO, ERROR')
+                        help='Python Logging level EG: INFO, ERROR (default is DEBUG)')
     parser.add_argument('--record', type=bool,
                         default=False,
                         help='Flag for Recording Video.')
