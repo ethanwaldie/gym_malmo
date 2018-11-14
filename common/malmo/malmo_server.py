@@ -62,7 +62,7 @@ def start(port=None):
             port += 1
 
     # start Minecraft process
-    cmd = mc_command + " -port " + str(port)
+    cmd = [mc_command, str(port)]
     logger.info("Starting Minecraft process: " + cmd)
     if platform.system() == 'Windows':
         proc = subprocess.Popen(cmd, cwd=minecraft_dir,
@@ -70,6 +70,7 @@ def start(port=None):
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     else:
         proc = subprocess.Popen(cmd,
+                                cwd=minecraft_dir,
                 # pipe entire output
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 # use process group, see http://stackoverflow.com/a/4791612/18576
