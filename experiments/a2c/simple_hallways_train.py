@@ -32,10 +32,10 @@ env = SimpleHallwaysEnv(tick_speed=args.tick_speed)
 
 
 if args.record:
-    env.init(start_minecraft=args.boot_minecraft_server ,recordDestination='recording.tgz',
+    env.init(start_minecraft=False ,recordDestination='recording.tgz',
              recordMP4=(10, 400000))
 else:
-    env.init(start_minecraft=args.boot_minecraft_server )
+    env.init(start_minecraft=False )
 
 env_fn = lambda: env
 
