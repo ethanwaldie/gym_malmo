@@ -63,7 +63,7 @@ def start(port=None):
 
     # start Minecraft process
     cmd = [mc_command, str(port)]
-    logger.info("Starting Minecraft process: " + cmd)
+    logger.info("Starting Minecraft process: " + " ".join(cmd))
     if platform.system() == 'Windows':
         proc = subprocess.Popen(cmd, cwd=minecraft_dir,
                 # pipe entire output
