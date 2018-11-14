@@ -76,8 +76,27 @@ are for Python 3.6 on Mac OSX.
        # dependancies for the baselines. 
        python setup.py install
     ```
+##### Using the Experiment Manager
+   Within this project there is a service for managing experiments and sending push notifications 
+   about their performance to the popular messaging service Telegram. 
+   If you would like to use this service you will need to install additional packages.     
+ 
 #### Running 
 
 In order to run the minecraft client on a machine in a headless mode, you can use the following command. 
 
-```xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ./launchClient.sh```
+
+```
+xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' ./launchClient.sh
+```
+
+#### Running on CSLab Machines at U of T
+
+Make sure the following environment vars are set correctly. 
+```
+export PYTHONPATH="~/gym_malmo"
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/pkgs_local/cuda-9.0/lib64
+export CUDA_HOME=/pkgs_local/cuda-9.0/
+```
+
+

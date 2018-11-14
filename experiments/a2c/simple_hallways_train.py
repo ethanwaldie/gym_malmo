@@ -19,8 +19,9 @@ args = parser.parse_args()
 from common.notifier.telegram_notifier import send_message
 from baselines.a2c import a2c
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
-
 from envs.discrete.simple_hallways import SimpleHallwaysEnv
+
+from baselines.bench.monitor import Monitor
 
 
 
@@ -28,16 +29,17 @@ logging.basicConfig(level=args.log_level)
 logger = logging.getLogger(__name__)
 
 env = SimpleHallwaysEnv(tick_speed=args.tick_speed)
+
+
 if args.record:
-    env.init(start_minecraft=False,recordDestination='recording.tgz',
+    env.init(start_minecraft=args.boot_minecraft_server ,recordDestination='recording.tgz',
              recordMP4=(10, 400000))
 else:
-    env.init(start_minecraft=False)
-
+    env.init(start_minecraft=args.boot_minecraft_server )
 
 env_fn = lambda: env
 
-vec_env = DummyVecEnv([env_fn])
+vec_env = Monitor(DummyVecEnv([env_fn]), "train_a2c.log")
 
 send_message("A2C Experiment Started")
 
@@ -57,7 +59,7 @@ try:
         alpha=args.alpha,
         gamma=args.gamma,
         log_interval=args.log_interval,
-        load_path=None
+        load_path='simple_hallways_a2c_model.pkl'
     )
 
     send_message("Saving model to trained .pkl")
