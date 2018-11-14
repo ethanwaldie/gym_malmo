@@ -4,7 +4,6 @@ import json
 import os
 import traceback
 
-
 def send_message(message_text, user="admin"):
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
