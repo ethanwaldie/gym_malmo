@@ -69,7 +69,7 @@ def start(port=None):
                 # pipe entire output
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     else:
-        proc = subprocess.run(cmd,
+        proc = subprocess.Popen(cmd,
                 # pipe entire output
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                 # use process group, see http://stackoverflow.com/a/4791612/18576
