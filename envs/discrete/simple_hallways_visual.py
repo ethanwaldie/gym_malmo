@@ -8,8 +8,6 @@ from gym import spaces
 
 from common.malmo.malmo_env import MalmoEnvironment
 
-logger = logging.getLogger(__name__)
-
 
 class SimpleHallwaysVisualEnv(MalmoEnvironment):
     """
@@ -47,7 +45,7 @@ class SimpleHallwaysVisualEnv(MalmoEnvironment):
 
         goal_position = random.choice(['left', 'right'])
 
-        logger.info("Goal is on the {}".format(goal_position))
+        self.logger.info("Goal is on the {}".format(goal_position))
 
 
         if goal_position == 'left':

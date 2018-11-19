@@ -4,7 +4,7 @@ import logging
 from telegram.ext import Updater
 
 from rosalind.bot import RosalindBot
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

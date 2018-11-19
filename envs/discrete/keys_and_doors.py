@@ -10,7 +10,6 @@ from common.malmo.malmo_env import MalmoEnvironment
 from common.malmo.mission_xml import MissionSpec
 from common.malmo.drawing_utils import *
 
-logger = logging.getLogger(__name__)
 
 
 class KeysAndDoorsEnv(MalmoEnvironment):

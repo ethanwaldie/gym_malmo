@@ -20,26 +20,27 @@ from common.notifier.telegram_notifier import send_message
 from baselines.a2c import a2c
 from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from envs.discrete.simple_hallways import SimpleHallwaysEnv
-
 from baselines.bench.monitor import Monitor
-
 
 
 logging.basicConfig(level=args.log_level)
 logger = logging.getLogger(__name__)
 
-env = SimpleHallwaysEnv(tick_speed=args.tick_speed)
+env = SimpleHallwaysEnv()
 
 
 if args.record:
     env.init(start_minecraft=False ,recordDestination='recording.tgz',
              recordMP4=(10, 400000))
 else:
-    env.init(start_minecraft=False )
+    env.init(start_minecraft=False)
 
-env_fn = lambda: env
 
-vec_env = Monitor(DummyVecEnv([env_fn]), "train_a2c.log")
+menv = Monitor(env, "train_monitor.log")
+
+env_fn = lambda: menv
+
+vec_env = DummyVecEnv([env_fn])
 
 send_message("A2C Experiment Started")
 

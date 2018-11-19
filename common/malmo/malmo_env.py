@@ -12,8 +12,6 @@ import MalmoPython
 import common.malmo.malmo_server as minecraft_py
 
 
-logger = logging.getLogger(__name__)
-
 SINGLE_DIRECTION_DISCRETE_MOVEMENTS = ["jumpeast", "jumpnorth", "jumpsouth", "jumpwest",
                                        "movenorth", "moveeast", "movesouth", "movewest",
                                        "jumpuse", "use", "attack", "jump"]
@@ -33,18 +31,20 @@ class MalmoEnvironment(gym.Env):
 
     def __init__(self, parse_world_state=False,
                  ):
+
+        self.logger = logging.getLogger(__name__)
+
         super(MalmoEnvironment, self).__init__()
 
         self.agent_host = MalmoPython.AgentHost()
         self.parse_world_state = parse_world_state
-
+        self.tick_speed=5
         self.client_pool = None
         self.mc_process = None
         self.screen = None
         self.previous_observations = None
         self.num_actions = 0
         self.agent_position = None
-
 
     def _load_mission(self, **kwargs) -> MalmoPython.MissionSpec:
         """
@@ -66,7 +66,7 @@ class MalmoEnvironment(gym.Env):
         raise NotImplementedError("If not collecting data from images you must implement a world state parser.")
 
     @staticmethod
-    def load_mission_xml_from_file(path:str) -> MalmoPython.MissionSpec:
+    def load_mission_xml_from_file(path: str) -> MalmoPython.MissionSpec:
         with open(path, 'r') as f:
             mission_spec = f.read()
 
@@ -76,29 +76,49 @@ class MalmoEnvironment(gym.Env):
 
         return mission_spec
 
-    def init(self, client_pool=None, start_minecraft=None,
-             continuous_discrete=True, add_noop_command=None,
-             max_retries=90, retry_sleep=10, step_sleep=0.001, skip_steps=0,
-             videoResolution=None, videoWithDepth=None,
-             observeRecentCommands=None, observeHotBar=None,
-             observeFullInventory=None, observeGrid=None,
-             observeDistance=None, observeChat=None,
-             allowContinuousMovement=None, allowDiscreteMovement=None,
-             allowAbsoluteMovement=None, recordDestination=None,
-             recordObservations=None, recordRewards=None,
-             recordCommands=None, recordMP4=None,
-             gameMode=None, forceWorldReset=None):
+    def init(self, client_pool=None,
+             start_minecraft=None,
+             continuous_discrete=True,
+             add_noop_command=None,
+             max_retries=90,
+             retry_sleep=10,
+             step_sleep=0.001,
+             skip_steps=0,
+             tick_speed=5,
+             logger=None,
+             videoResolution=None,
+             videoWithDepth=None,
+             observeRecentCommands=None,
+             observeHotBar=None,
+             observeFullInventory=None,
+             observeGrid=None,
+             observeDistance=None,
+             observeChat=None,
+             allowContinuousMovement=None,
+             allowDiscreteMovement=None,
+             allowAbsoluteMovement=None,
+             recordDestination=None,
+             recordObservations=None,
+             recordRewards=None,
+             recordCommands=None,
+             recordMP4=None,
+             gameMode=None,
+             forceWorldReset=None):
+
+        if logger:
+            self.logger = logger
 
         self.max_retries = max_retries
         self.retry_sleep = retry_sleep
         self.step_sleep = step_sleep
         self.skip_steps = skip_steps
+        self.tick_speed = tick_speed
         self.forceWorldReset = forceWorldReset
         self.continuous_discrete = continuous_discrete
         self.add_noop_command = add_noop_command
 
         self.mission_spec = self._load_mission()
-        logger.info("Loaded mission: " + self.mission_spec.getSummary())
+        self.logger.info("Loaded mission: " + self.mission_spec.getSummary())
 
         if videoResolution:
             if videoWithDepth:
@@ -144,7 +164,7 @@ class MalmoEnvironment(gym.Env):
         if start_minecraft:
             # start Minecraft process assigning port dynamically
             self.mc_process, port = minecraft_py.start()
-            logger.info("Started Minecraft on port %d, overriding client_pool.", port)
+            self.logger.info("Started Minecraft on port %d, overriding client_pool.", port)
             client_pool = [('127.0.0.1', port)]
 
         if client_pool:
@@ -184,7 +204,7 @@ class MalmoEnvironment(gym.Env):
             elif gameMode == "creative":
                 self.mission_spec.setModeToCreative()
             elif gameMode == "survival":
-                logger.warning=("Cannot force survival mode, assuming it is the default.")
+                self.logger.warning = ("Cannot force survival mode, assuming it is the default.")
             else:
                 assert False, "Unknown game mode: " + gameMode
 
@@ -201,7 +221,7 @@ class MalmoEnvironment(gym.Env):
         for ch in chs:
             cmds = self.mission_spec.getAllowedCommands(0, ch)
             for cmd in cmds:
-                logger.debug(ch + ":" + cmd)
+                self.logger.debug(ch + ":" + cmd)
                 if ch == "ContinuousMovement":
                     if cmd in ["move", "strafe", "pitch", "turn"]:
                         if self.continuous_discrete:
@@ -228,12 +248,12 @@ class MalmoEnvironment(gym.Env):
                         raise ValueError(False, "Unknown discrete action " + cmd)
                 elif ch == "AbsoluteMovement":
                     # TODO: support for AbsoluteMovement
-                    logger.warning("Absolute movement not supported, ignoring.")
+                    self.logger.warning("Absolute movement not supported, ignoring.")
                 elif ch == "Inventory":
                     # TODO: support for Inventory
-                    logger.warning("Inventory management not supported, ignoring.")
+                    self.logger.warning("Inventory management not supported, ignoring.")
                 else:
-                    logger.warning("Unknown commandhandler " + ch)
+                    self.logger.warning("Unknown commandhandler " + ch)
 
         # turn action lists into action spaces
         self.action_names = []
@@ -253,7 +273,7 @@ class MalmoEnvironment(gym.Env):
             self.action_space = self.action_spaces[0]
         else:
             self.action_space = spaces.Tuple(self.action_spaces)
-        logger.debug(self.action_space)
+        self.logger.debug(self.action_space)
 
     def _take_action(self, actions, world_state):
         # if there is only one action space, it wasn't wrapped in Tuple
@@ -263,20 +283,20 @@ class MalmoEnvironment(gym.Env):
         # send appropriate command for different actions
         for spc, cmds, acts in zip(self.action_spaces, self.action_names, actions):
             if isinstance(spc, spaces.Discrete):
-                logger.debug(cmds[acts])
+                self.logger.debug(cmds[acts])
                 self._send_command(cmds[acts], world_state)
             elif isinstance(spc, spaces.Box):
                 for cmd, val in zip(cmds, acts):
-                    logger.debug(cmd + " " + str(val))
+                    self.logger.debug(cmd + " " + str(val))
                     self._send_command(cmd + " " + str(val), world_state)
             elif isinstance(spc, spaces.MultiDiscrete):
                 for cmd, val in zip(cmds, acts):
-                    logger.debug(cmd + " " + str(val))
+                    self.logger.debug(cmd + " " + str(val))
                     self._send_command(cmd + " " + str(val), world_state)
             else:
-                logger.warning("Unknown action space for %s, ignoring." % cmds)
+                self.logger.warning("Unknown action space for %s, ignoring." % cmds)
 
-    def _send_command(self, command:str, world_state):
+    def _send_command(self, command: str, world_state):
         """
         Sends a command to the agent host.
 
@@ -286,26 +306,24 @@ class MalmoEnvironment(gym.Env):
         """
         self.agent_host.sendCommand(command)
 
-
     def _get_world_state(self, ignore_rewards=False):
         # wait till we have got at least one observation or mission has ended
         while True:
             time.sleep(self.step_sleep)  # wait for 1ms to not consume entire CPU
             world_state = self.agent_host.peekWorldState()
-            if ((len(world_state.rewards) >0 or ignore_rewards)
+            if ((len(world_state.rewards) > 0 or ignore_rewards)
                 and world_state.number_of_observations_since_last_state > self.skip_steps) \
                     or not world_state.is_mission_running:
                 break
 
         return self.agent_host.getWorldState()
 
-
     def _peek_valid_world_state(self):
         # wait till we have got at least one observation or mission has ended
         while True:
             time.sleep(self.step_sleep)  # wait for 1ms to not consume entire CPU
             world_state = self.agent_host.peekWorldState()
-            if (len(world_state.rewards) >0 and world_state.number_of_observations_since_last_state > self.skip_steps) \
+            if (len(world_state.rewards) > 0 and world_state.number_of_observations_since_last_state > self.skip_steps) \
                     or not world_state.is_mission_running:
                 break
 
@@ -318,7 +336,7 @@ class MalmoEnvironment(gym.Env):
             frame = world_state.video_frames[-1]
             image = np.frombuffer(frame.pixels, dtype=np.uint8)
             image = image.reshape((frame.height, frame.width, frame.channels))
-            # logger.debug(image)
+            # self.logger.debug(image)
             self.last_image = image
         else:
             # can happen only when mission ends before we get frame
@@ -340,9 +358,9 @@ class MalmoEnvironment(gym.Env):
             missed = world_state.number_of_observations_since_last_state - len(
                 world_state.observations) - self.skip_steps
             if missed > 0:
-                logger.debug("Agent missed %d observation(s).", missed)
+                self.logger.debug("Agent missed %d observation(s).", missed)
             assert len(world_state.observations) == 1
-            observations =  json.loads(world_state.observations[-1].text)
+            observations = json.loads(world_state.observations[-1].text)
             self.previous_observations = observations
             return observations
         else:
@@ -361,13 +379,13 @@ class MalmoEnvironment(gym.Env):
 
         # log errors and control messages
         for error in world_state.errors:
-            logger.warning(error.text)
+            self.logger.warning(error.text)
         for msg in world_state.mission_control_messages:
-            logger.debug(msg.text)
+            self.logger.debug(msg.text)
             root = ET.fromstring(msg.text)
             if root.tag == '{http://ProjectMalmo.microsoft.com}MissionEnded':
                 for el in root.findall('{http://ProjectMalmo.microsoft.com}HumanReadableStatus'):
-                    logger.info("Mission ended: %s", el.text)
+                    self.logger.info("Mission ended: %s", el.text)
 
         # detect terminal state
         done = not world_state.is_mission_running
@@ -390,7 +408,7 @@ class MalmoEnvironment(gym.Env):
             obs = self._get_video_frame(world_state)
 
         if done:
-            logger.info("Number of actions in iteration {}".format(self.num_actions))
+            self.logger.info("Number of actions in iteration {}".format(self.num_actions))
         return obs, reward, done, info
 
     def render(self, mode='human', close=False):
@@ -417,24 +435,24 @@ class MalmoEnvironment(gym.Env):
                 break
             except RuntimeError as e:
                 if retry == self.max_retries:
-                    logger.error("Error starting mission: " + str(e))
+                    self.logger.error("Error starting mission: " + str(e))
                     raise
                 else:
-                    logger.warning("Error starting mission: " + str(e))
-                    logger.info("Sleeping for %d seconds...", self.retry_sleep)
+                    self.logger.warning("Error starting mission: " + str(e))
+                    self.logger.info("Sleeping for %d seconds...", self.retry_sleep)
                     time.sleep(self.retry_sleep)
 
         # Loop until mission starts:
-        logger.info("Waiting for the mission to start")
+        self.logger.info("Waiting for the mission to start")
         world_state = self.agent_host.getWorldState()
         while not world_state.has_mission_begun:
             time.sleep(0.1)
             world_state = self.agent_host.getWorldState()
             for error in world_state.errors:
-                logger.warning(error.text)
+                self.logger.warning(error.text)
 
-        logger.info("Mission running")
-        logger.info("Collecting First Observation")
+        self.logger.info("Mission running")
+        self.logger.info("Collecting First Observation")
         world_state = self._get_world_state(ignore_rewards=True)
 
         if self.parse_world_state:

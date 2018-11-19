@@ -13,7 +13,7 @@ class ExperimentResultsDatabase:
 
         path = os.path.dirname(os.path.realpath(__file__))
 
-        self._url = "sqlite:///{}.db".format(os.path.join(path + self.db_name))
+        self._url = "sqlite:///{}.db".format(os.path.join(path, self.db_name))
 
         self.db_engine = create_engine(self._url)
 

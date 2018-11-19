@@ -19,6 +19,7 @@ class RosalindBot(Bot):
 
         super().__init__(self.__token)
 
+
         self.db = ExperimentResultsDatabase()
 
     @staticmethod
@@ -27,3 +28,6 @@ class RosalindBot(Bot):
         Adds all the handlers to the telegram updater object.
         """
         updater.dispatcher.add_handler(CommandHandler('start', handlers.start))
+        updater.dispatcher.add_handler(CommandHandler('runa2c', handlers.run_a2c_experiment))
+        updater.dispatcher.add_handler(CommandHandler('running', handlers.running_experiments))
+        updater.dispatcher.add_handler(CommandHandler('completed', handlers.completed_experiments))

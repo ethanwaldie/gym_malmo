@@ -9,7 +9,6 @@ from gym import spaces
 from common.malmo.malmo_env import MalmoEnvironment
 
 
-logger = logging.getLogger(__name__)
 
 
 class SimpleHallwaysEnv(MalmoEnvironment):
@@ -23,9 +22,8 @@ class SimpleHallwaysEnv(MalmoEnvironment):
 
     metadata = {'render.modes': []}
 
-    def __init__(self, tick_speed=5):
+    def __init__(self):
         self._spec_path = os.path.join(os.path.dirname(__file__), "schemas/simple_hallways_mission.xml")
-        self._tick_speed = tick_speed
 
         self.observation_space = spaces.Box(low=0, high=1, shape=(18,5),dtype=np.int32)
         super().__init__(parse_world_state=True)
@@ -50,7 +48,7 @@ class SimpleHallwaysEnv(MalmoEnvironment):
 
         goal_position = random.choice(['left', 'right'])
 
-        logger.info("Goal is on the {}".format(goal_position))
+        self.logger.info("Goal is on the {}".format(goal_position))
 
 
         if goal_position == 'left':
@@ -71,7 +69,7 @@ class SimpleHallwaysEnv(MalmoEnvironment):
         with open(self._spec_path, 'r') as f:
             mission_spec = f.read()
 
-        mission_spec.replace("<MsPerTick>5</MsPerTick>", "<MsPerTick>{}</MsPerTick>".format(self._tick_speed))
+        mission_spec.replace("<MsPerTick>5</MsPerTick>", "<MsPerTick>{}</MsPerTick>".format(self.tick_speed))
 
         self.mission_spec = MalmoPython.MissionSpec(mission_spec, True)
 
