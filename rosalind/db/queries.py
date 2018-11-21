@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 
 from rosalind.db.connection import ExperimentResultsDatabase
@@ -103,25 +104,31 @@ def update_experiment(experiments_connection: ExperimentResultsDatabase,
 
 
 def find_and_reserve_client(experiments_connection: ExperimentResultsDatabase,
-                            experiment_id:str) -> ClientPool:
+                            experiment_id:str) -> str:
 
     session = experiments_connection.session_creator()
 
+    client_address = None
     try:
+        # this prevents other proccesses from accessing this table while we claim a client.
+        session.execute("LOCK client_pool in ACCESS EXCLUSIVE mode;")
         client = session.query(ClientPool).filter(ClientPool.status == ClientStatus.AVALIABLE.name).first()
 
         if client:
             client.status = ClientStatus.OCCUPIED.name
             client.current_experiment = experiment_id
+            client_address = client.address
+            session.merge(client)
 
         session.commit()
-
-    except Exception as e:
-        client = None
+    except:
+        client_address = None
         session.rollback()
+        logging.exception("Unable to reserve Client! For experiment {}".format(experiment_id))
+
     finally:
         session.close()
-    return client
+    return client_address
 
 
 

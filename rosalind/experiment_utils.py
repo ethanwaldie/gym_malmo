@@ -21,6 +21,7 @@ _MODELS = {
     'deepq': train_dqn
 }
 
+
 def build_log_dir(experiment_id):
     base_log_dir = os.path.join(os.path.dirname(__file__), "logs")
 
@@ -33,6 +34,7 @@ def build_log_dir(experiment_id):
         os.mkdir(log_dir)
 
     return log_dir
+
 
 def send_message_to_owner(bot, experiment, message):
     """
@@ -48,16 +50,16 @@ def send_message_to_owner(bot, experiment, message):
     bot.send_message(chat_id=user.chat_id,
                      text=message)
 
-def train_model(
-              bot,
-              experiment,
-              log_dir: str,
-              model_runner,
-              env_id:str,
-              model_params):
 
+def train_model(
+        bot,
+        experiment,
+        log_dir: str,
+        model_runner,
+        env_id: str,
+        model_params):
     logger = logging.getLogger("experiment-{}".format(experiment.id))
-    fh = logging.FileHandler(os.path.join(log_dir,'train.log'))
+    fh = logging.FileHandler(os.path.join(log_dir, 'train.log'))
     fh.setLevel(logging.INFO)
     logger.addHandler(fh)
 
@@ -69,16 +71,16 @@ def train_model(
                                            experiment_id=experiment.id,
                                            bot=bot, logger=logger)
 
-    client = None
+    client_address = None
 
-    while not client:
-        client = find_and_reserve_client(experiments_connection=bot.db)
+    while not client_address:
+        client_address = find_and_reserve_client(experiments_connection=bot.db, experiment_id=experiment.id)
         logger.info("No clients available, waiting for available clients...")
         time.sleep(10)
 
-    logger.debug("Reserving Client {}".format(client.address))
+    logger.debug("Reserving Client {}".format(client_address))
 
-    client_pool = client.address.split(":")
+    client_pool = client_address.split(":")
     client_pool = [(client_pool[0], int(client_pool[1]))]
 
     try:
@@ -127,17 +129,17 @@ def train_model(
         experiment_monitor.stop()
         experiment_monitor.join(timeout=2)
         update_client(experiments_connection=bot.db,
-                      client_address=client.address,
+                      client_address=client_address,
                       fields={ClientPool.status: ClientStatus.AVALIABLE.name,
                               ClientPool.current_experiment: None})
 
-def run_new_single_experiment_with_monitoring(bot,
-                                       user,
-                                       model:str,
-                                       env_id: str,
-                                       model_params,
-                                       group_id=None):
 
+def run_new_single_experiment_with_monitoring(bot,
+                                              user,
+                                              model: str,
+                                              env_id: str,
+                                              model_params,
+                                              group_id=None):
     model_runner = _MODELS.get(model)
 
     if not model_runner:
@@ -151,23 +153,23 @@ def run_new_single_experiment_with_monitoring(bot,
     log_dir = build_log_dir(experiment_id)
 
     create_experiment(experiments_connection=bot.db,
-                                   experiment_id=experiment_id,
-                                   group_id=group_id,
-                                   model=model,
-                                   env_id=env_id,
-                                   owner=user,
-                                   total_timesteps=model_params['total_timesteps'],
-                                   log_dir=log_dir,
-                                   model_params=model_params)
+                      experiment_id=experiment_id,
+                      group_id=group_id,
+                      model=model,
+                      env_id=env_id,
+                      owner=user,
+                      total_timesteps=model_params['total_timesteps'],
+                      log_dir=log_dir,
+                      model_params=model_params)
     experiment = get_experiment(experiments_connection=bot.db, experiment_id=experiment_id)
 
     try:
         training_process = Process(target=train_model, args=(bot,
-                                              experiment,
-                                              log_dir,
-                                              model_runner,
-                                              env_id,
-                                              model_params))
+                                                             experiment,
+                                                             log_dir,
+                                                             model_runner,
+                                                             env_id,
+                                                             model_params))
         training_process.start()
     except Exception as e:
         tb = traceback.format_exc()
@@ -178,24 +180,8 @@ def run_new_single_experiment_with_monitoring(bot,
                                       '{}'.format(experiment.id, tb))
         raise e
 
-
     update_experiment(experiments_connection=bot.db,
                       experiment_id=experiment.id,
                       fields={Experiments.pid: training_process.pid})
 
     return experiment
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
