@@ -48,8 +48,8 @@
             </DiscreteMovementCommands>
             <ObservationFromFullStats/>
             <VideoProducer want_depth="false">
-                <Width>640</Width>
-                <Height>480</Height>
+                <Width>100</Width>
+                <Height>100</Height>
             </VideoProducer>
         </AgentHandlers>
     </AgentSection>

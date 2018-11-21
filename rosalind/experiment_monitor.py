@@ -59,7 +59,13 @@ class ExperimentMonitor(threading.Thread):
 
                 while not self.stopped():
                     data = json.loads(f.stdout.readline())
+
                     total_timesteps = data.get('total_timesteps')
+
+                    # dqn logs differently.
+                    if not total_timesteps:
+                        total_timesteps = data.get("steps")
+
                     if total_timesteps:
                         update_experiment(experiments_connection=self.bot.db,
                                           experiment_id=self.experiment_id,

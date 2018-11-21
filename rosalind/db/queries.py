@@ -102,14 +102,27 @@ def update_experiment(experiments_connection: ExperimentResultsDatabase,
         session.close()
 
 
-def find_available_client(experiments_connection: ExperimentResultsDatabase) -> ClientPool:
+def find_and_reserve_client(experiments_connection: ExperimentResultsDatabase,
+                            experiment_id:str) -> ClientPool:
+
     session = experiments_connection.session_creator()
 
-    client = session.query(ClientPool).filter(ClientPool.status == ClientStatus.AVALIABLE.name).first()
+    try:
+        client = session.query(ClientPool).filter(ClientPool.status == ClientStatus.AVALIABLE.name).first()
 
-    session.close()
+        if client:
+            client.status = ClientStatus.OCCUPIED.name
+            client.current_experiment = experiment_id
 
+        session.commit()
+
+    except Exception as e:
+        client = None
+        session.rollback()
+    finally:
+        session.close()
     return client
+
 
 
 def update_client(experiments_connection: ExperimentResultsDatabase,

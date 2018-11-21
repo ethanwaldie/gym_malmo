@@ -7,15 +7,18 @@ import datetime
 
 from multiprocessing import Process
 from experiments.a2c.train import train_a2c
+from experiments.deep_dqn.train import train_dqn
 
 from rosalind.experiment_monitor import ExperimentMonitor
+from rosalind.db.connection import ExperimentResultsDatabase
 from rosalind.db.schema import Experiments, ClientPool
 from rosalind.db.queries import create_experiment, update_experiment, \
-    find_available_client, update_client, get_user, get_experiment
+    find_and_reserve_client, update_client, get_user, get_experiment
 from rosalind.db.types import ClientStatus, ExperimentStatus
 
 _MODELS = {
-    'a2c': train_a2c
+    'a2c': train_a2c,
+    'deepq': train_dqn
 }
 
 def build_log_dir(experiment_id):
@@ -58,24 +61,22 @@ def train_model(
     fh.setLevel(logging.INFO)
     logger.addHandler(fh)
 
+    # connections are not process safe, so we need a new one per process.
+    bot.db = ExperimentResultsDatabase()
+
     experiment_monitor = ExperimentMonitor(log_dir=log_dir,
                                            name="ExperimentMonitor-{}".format(experiment.id),
                                            experiment_id=experiment.id,
                                            bot=bot, logger=logger)
 
-    client = find_available_client(experiments_connection=bot.db)
+    client = None
 
     while not client:
+        client = find_and_reserve_client(experiments_connection=bot.db)
         logger.info("No clients available, waiting for available clients...")
         time.sleep(10)
-        client = find_available_client(experiments_connection=bot.db)
 
     logger.debug("Reserving Client {}".format(client.address))
-
-    update_client(experiments_connection=bot.db,
-                  client_address=client.address,
-                  fields={ClientPool.status: ClientStatus.OCCUPIED.name,
-                          ClientPool.current_experiment: experiment.id})
 
     client_pool = client.address.split(":")
     client_pool = [(client_pool[0], int(client_pool[1]))]
@@ -103,7 +104,7 @@ def train_model(
         update_experiment(experiments_connection=bot.db,
                           experiment_id=experiment.id,
                           fields={Experiments.status: ExperimentStatus.FAILED.name,
-                                  Experiments. end_date: datetime.datetime.utcnow()})
+                                  Experiments.end_date: datetime.datetime.utcnow()})
 
         logger.exception("Experiment {} Failed!".format(experiment.id))
         tb = traceback.format_exc()
@@ -118,21 +119,24 @@ def train_model(
         update_experiment(experiments_connection=bot.db,
                           experiment_id=experiment.id,
                           fields={Experiments.status: ExperimentStatus.COMPLETED.name,
-                                  Experiments. end_date: datetime.datetime.utcnow()})
+                                  Experiments.end_date: datetime.datetime.utcnow()})
         send_message_to_owner(bot=bot,
                               experiment=experiment,
                               message='The experiment with id {} completed!'.format(experiment.id))
     finally:
         experiment_monitor.stop()
         experiment_monitor.join(timeout=2)
-        client.status = ClientStatus.AVALIABLE.name
-        update_client(experiments_connection=bot.db, client=client)
+        update_client(experiments_connection=bot.db,
+                      client_address=client.address,
+                      fields={ClientPool.status: ClientStatus.AVALIABLE.name,
+                              ClientPool.current_experiment: None})
 
 def run_new_single_experiment_with_monitoring(bot,
                                        user,
                                        model:str,
                                        env_id: str,
-                                       model_params):
+                                       model_params,
+                                       group_id=None):
 
     model_runner = _MODELS.get(model)
 
@@ -140,7 +144,10 @@ def run_new_single_experiment_with_monitoring(bot,
         raise KeyError("The model {} has not been implemented.".format(model))
 
     experiment_id = uuid.uuid4()
-    group_id = uuid.uuid4()
+
+    if not group_id:
+        group_id = uuid.uuid4()
+
     log_dir = build_log_dir(experiment_id)
 
     create_experiment(experiments_connection=bot.db,

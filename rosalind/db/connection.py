@@ -7,13 +7,9 @@ from rosalind.db.schema import Base
 
 class ExperimentResultsDatabase:
 
-    db_name = "experiments"
-
     def __init__(self):
 
-        path = os.path.dirname(os.path.realpath(__file__))
-
-        self._url = "sqlite:///{}.db".format(os.path.join(path, self.db_name))
+        self._url = "postgresql://rosiland:minecraft@localhost:5432/rosiland"
 
         self.db_engine = create_engine(self._url)
 
