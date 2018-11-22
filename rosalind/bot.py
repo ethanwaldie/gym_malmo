@@ -4,7 +4,7 @@ import logging
 from telegram.bot import Bot
 from telegram.ext import CommandHandler
 
-from rosalind.db.connection import ExperimentResultsDatabase
+from rosalind.db.connection import RosalindDatabase
 import rosalind.handlers as handlers
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class RosalindBot(Bot):
         super().__init__(self.__token)
 
 
-        self.db = ExperimentResultsDatabase()
+        self.db = RosalindDatabase()
 
     @staticmethod
     def _add_handlers(updater):

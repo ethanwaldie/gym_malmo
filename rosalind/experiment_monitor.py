@@ -67,7 +67,7 @@ class ExperimentMonitor(threading.Thread):
                         total_timesteps = data.get("steps")
 
                     if total_timesteps:
-                        update_experiment(experiments_connection=self.bot.db,
+                        update_experiment(rosalind_connection=self.bot.db,
                                           experiment_id=self.experiment_id,
                                           fields={Experiments.current_timestep: total_timesteps})
                     time.sleep(1)

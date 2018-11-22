@@ -44,7 +44,7 @@ def running_experiments(bot, update):
     :param update:
     :return:
     """
-    experiments_df = get_running_experiments_df(experiments_connection=bot.db)
+    experiments_df = get_running_experiments_df(rosalind_connection=bot.db)
 
     cols = ['model', 'status', 'current_timestep', 'total_timesteps', 'updated_date']
 
@@ -60,7 +60,7 @@ def completed_experiments(bot, update):
     :param update:
     :return:
     """
-    experiments_df = get_recent_completed_experiments_df(experiments_connection=bot.db)
+    experiments_df = get_recent_completed_experiments_df(rosalind_connection=bot.db)
 
     cols = ['model', 'status', 'current_timestep', 'total_timesteps', 'updated_date']
 
@@ -116,7 +116,7 @@ def run_experiment_group(bot, update):
                 "network": "lstm",
                 "seed": None,
                 "nsteps": 5,
-                "total_timesteps": 400000,
+                "total_timesteps": 1000000,
                 "vf_coef": 0.5,
                 "ent_coef": 0.01,
                 "max_grad_norm": 0.5,

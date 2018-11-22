@@ -1,13 +1,14 @@
 import logging
+import datetime
 import pandas as pd
 
-from rosalind.db.connection import ExperimentResultsDatabase
+from rosalind.db.connection import RosalindDatabase
 from rosalind.db.types import ExperimentStatus, ClientStatus
 from rosalind.db.schema import AuthorizedUsers, Experiments, ClientPool
 
 
-def get_user(experiments_connection: ExperimentResultsDatabase, user_id) -> AuthorizedUsers:
-    session = experiments_connection.session_creator()
+def get_user(rosalind_connection: RosalindDatabase, user_id) -> AuthorizedUsers:
+    session = rosalind_connection.session_creator()
 
     user = (session.query(AuthorizedUsers)
             .filter(AuthorizedUsers.id == user_id).scalar())
@@ -17,8 +18,8 @@ def get_user(experiments_connection: ExperimentResultsDatabase, user_id) -> Auth
     return user
 
 
-def get_experiment(experiments_connection: ExperimentResultsDatabase, experiment_id) -> Experiments:
-    session = experiments_connection.session_creator()
+def get_experiment(rosalind_connection: RosalindDatabase, experiment_id) -> Experiments:
+    session = rosalind_connection.session_creator()
 
     experiment = (session.query(Experiments)
                   .filter(Experiments.id == str(experiment_id)).scalar())
@@ -28,8 +29,8 @@ def get_experiment(experiments_connection: ExperimentResultsDatabase, experiment
     return experiment
 
 
-def get_running_experiments_df(experiments_connection: ExperimentResultsDatabase):
-    session = experiments_connection.session_creator()
+def get_running_experiments_df(rosalind_connection: RosalindDatabase):
+    session = rosalind_connection.session_creator()
 
     experiments_df = pd.read_sql(session.query(Experiments)
                                   .filter(Experiments.status == ExperimentStatus.RUNNING.name)
@@ -40,8 +41,8 @@ def get_running_experiments_df(experiments_connection: ExperimentResultsDatabase
     return experiments_df
 
 
-def get_recent_completed_experiments_df(experiments_connection: ExperimentResultsDatabase):
-    session = experiments_connection.session_creator()
+def get_recent_completed_experiments_df(rosalind_connection: RosalindDatabase):
+    session = rosalind_connection.session_creator()
 
     experiments_df =  pd.read_sql(session.query(Experiments)
                    .filter(Experiments.status == ExperimentStatus.COMPLETED.name)
@@ -53,7 +54,7 @@ def get_recent_completed_experiments_df(experiments_connection: ExperimentResult
     return experiments_df
 
 
-def create_experiment(experiments_connection: ExperimentResultsDatabase,
+def create_experiment(rosalind_connection: RosalindDatabase,
                       experiment_id,
                       group_id,
                       model,
@@ -62,7 +63,7 @@ def create_experiment(experiments_connection: ExperimentResultsDatabase,
                       total_timesteps,
                       log_dir,
                       model_params):
-    session = experiments_connection.session_creator()
+    session = rosalind_connection.session_creator()
 
     try:
         session.add(Experiments(
@@ -86,10 +87,10 @@ def create_experiment(experiments_connection: ExperimentResultsDatabase,
         session.close()
 
 
-def update_experiment(experiments_connection: ExperimentResultsDatabase,
+def update_experiment(rosalind_connection: RosalindDatabase,
                       experiment_id,
                       fields: dict):
-    session = experiments_connection.session_creator()
+    session = rosalind_connection.session_creator()
 
     try:
         (session.query(Experiments)
@@ -103,10 +104,10 @@ def update_experiment(experiments_connection: ExperimentResultsDatabase,
         session.close()
 
 
-def find_and_reserve_client(experiments_connection: ExperimentResultsDatabase,
+def find_and_reserve_client(rosalind_connection: RosalindDatabase,
                             experiment_id:str) -> str:
 
-    session = experiments_connection.session_creator()
+    session = rosalind_connection.session_creator()
 
     client_address = None
     try:
@@ -132,9 +133,9 @@ def find_and_reserve_client(experiments_connection: ExperimentResultsDatabase,
 
 
 
-def update_client(experiments_connection: ExperimentResultsDatabase,
+def update_client(rosalind_connection: RosalindDatabase,
                   client_address: str, fields: dict):
-    session = experiments_connection.session_creator()
+    session = rosalind_connection.session_creator()
 
     try:
         (session.query(ClientPool)
@@ -147,3 +148,22 @@ def update_client(experiments_connection: ExperimentResultsDatabase,
         raise e
     finally:
         session.close()
+        
+def create_client(rosalind_connection: RosalindDatabase,
+                  client_address:str):
+    session = rosalind_connection.session_creator()
+
+    try:
+        session.add(ClientPool(
+            address=client_address,
+            status=ClientStatus.AVALIABLE.name,
+            start_date=datetime.datetime.utcnow()
+        ))
+
+        session.commit()
+    except:
+        session.rollback()
+    finally:
+        session.close()
+
+

@@ -10,7 +10,7 @@ from experiments.a2c.train import train_a2c
 from experiments.deep_dqn.train import train_dqn
 
 from rosalind.experiment_monitor import ExperimentMonitor
-from rosalind.db.connection import ExperimentResultsDatabase
+from rosalind.db.connection import RosalindDatabase
 from rosalind.db.schema import Experiments, ClientPool
 from rosalind.db.queries import create_experiment, update_experiment, \
     find_and_reserve_client, update_client, get_user, get_experiment
@@ -45,7 +45,7 @@ def send_message_to_owner(bot, experiment, message):
     :return:
     """
 
-    user = get_user(experiments_connection=bot.db, user_id=experiment.owner)
+    user = get_user(rosalind_connection=bot.db, user_id=experiment.owner)
 
     bot.send_message(chat_id=user.chat_id,
                      text=message)
@@ -64,7 +64,7 @@ def train_model(
     logger.addHandler(fh)
 
     # connections are not process safe, so we need a new one per process.
-    bot.db = ExperimentResultsDatabase()
+    bot.db = RosalindDatabase()
 
     experiment_monitor = ExperimentMonitor(log_dir=log_dir,
                                            name="ExperimentMonitor-{}".format(experiment.id),
@@ -74,7 +74,7 @@ def train_model(
     client_address = None
 
     while not client_address:
-        client_address = find_and_reserve_client(experiments_connection=bot.db, experiment_id=experiment.id)
+        client_address = find_and_reserve_client(rosalind_connection=bot.db, experiment_id=experiment.id)
         logger.info("No clients available, waiting for available clients...")
         time.sleep(10)
 
@@ -85,7 +85,7 @@ def train_model(
 
     try:
 
-        update_experiment(experiments_connection=bot.db,
+        update_experiment(rosalind_connection=bot.db,
                           experiment_id=experiment.id,
                           fields={Experiments.status: ExperimentStatus.RUNNING.name})
 
@@ -103,7 +103,7 @@ def train_model(
         experiment_monitor.stop()
         experiment_monitor.join(timeout=2)
 
-        update_experiment(experiments_connection=bot.db,
+        update_experiment(rosalind_connection=bot.db,
                           experiment_id=experiment.id,
                           fields={Experiments.status: ExperimentStatus.FAILED.name,
                                   Experiments.end_date: datetime.datetime.utcnow()})
@@ -118,7 +118,7 @@ def train_model(
         raise e
     else:
 
-        update_experiment(experiments_connection=bot.db,
+        update_experiment(rosalind_connection=bot.db,
                           experiment_id=experiment.id,
                           fields={Experiments.status: ExperimentStatus.COMPLETED.name,
                                   Experiments.end_date: datetime.datetime.utcnow()})
@@ -128,7 +128,7 @@ def train_model(
     finally:
         experiment_monitor.stop()
         experiment_monitor.join(timeout=2)
-        update_client(experiments_connection=bot.db,
+        update_client(rosalind_connection=bot.db,
                       client_address=client_address,
                       fields={ClientPool.status: ClientStatus.AVALIABLE.name,
                               ClientPool.current_experiment: None})
@@ -152,7 +152,7 @@ def run_new_single_experiment_with_monitoring(bot,
 
     log_dir = build_log_dir(experiment_id)
 
-    create_experiment(experiments_connection=bot.db,
+    create_experiment(rosalind_connection=bot.db,
                       experiment_id=experiment_id,
                       group_id=group_id,
                       model=model,
@@ -161,7 +161,7 @@ def run_new_single_experiment_with_monitoring(bot,
                       total_timesteps=model_params['total_timesteps'],
                       log_dir=log_dir,
                       model_params=model_params)
-    experiment = get_experiment(experiments_connection=bot.db, experiment_id=experiment_id)
+    experiment = get_experiment(rosalind_connection=bot.db, experiment_id=experiment_id)
 
     try:
         training_process = Process(target=train_model, args=(bot,
@@ -180,7 +180,7 @@ def run_new_single_experiment_with_monitoring(bot,
                                       '{}'.format(experiment.id, tb))
         raise e
 
-    update_experiment(experiments_connection=bot.db,
+    update_experiment(rosalind_connection=bot.db,
                       experiment_id=experiment.id,
                       fields={Experiments.pid: training_process.pid})
 

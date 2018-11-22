@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from rosalind.db.schema import Base
 
-class ExperimentResultsDatabase:
+class RosalindDatabase:
 
     def __init__(self):
 
