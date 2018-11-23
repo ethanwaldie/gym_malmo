@@ -29,25 +29,21 @@ def get_experiment(rosalind_connection: RosalindDatabase, experiment_id) -> Expe
     return experiment
 
 
-def get_running_experiments_df(rosalind_connection: RosalindDatabase):
+def get_experiments_by_status_df(rosalind_connection: RosalindDatabase,
+                                 status:str,
+                                 limit=None):
     session = rosalind_connection.session_creator()
 
-    experiments_df = pd.read_sql(session.query(Experiments)
-                                  .filter(Experiments.status == ExperimentStatus.RUNNING.name)
-                                  .statement, session.bind)
-
-    session.close()
-
-    return experiments_df
-
-
-def get_recent_completed_experiments_df(rosalind_connection: RosalindDatabase):
-    session = rosalind_connection.session_creator()
-
-    experiments_df =  pd.read_sql(session.query(Experiments)
-                   .filter(Experiments.status == ExperimentStatus.COMPLETED.name)
-                   .order_by(Experiments.updated_date.desc())
-                   .limit(5).statement, session.bind)
+    if not limit:
+        experiments_df = pd.read_sql(session.query(Experiments)
+                                      .filter(Experiments.status == status)
+                                     .order_by(Experiments.updated_date.desc())
+                                      .statement, session.bind)
+    else:
+        experiments_df = pd.read_sql(session.query(Experiments)
+                                     .filter(Experiments.status == status)
+                                     .order_by(Experiments.updated_date.desc())
+                                     .limit(limit).statement, session.bind)
 
     session.close()
 

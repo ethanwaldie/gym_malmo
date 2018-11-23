@@ -72,19 +72,6 @@ if __name__ == '__main__':
             if b"CLIENT enter state: DORMANT" in line:
                 break
         print("Minecraft process at port {} ready".format(args.start_port + i))
+
         create_client(rosalind_connection=rosiland_connection,
                       client_address="{}:{}".format(args.host, args.start_port + i))
-
-
-
-
-
-
-
-
-
-
-
-
-
-

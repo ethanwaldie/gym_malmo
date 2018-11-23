@@ -36,8 +36,8 @@
                 </ns1:Grid>
             </ns1:ObservationFromGrid>
             <ns1:VideoProducer want_depth="false">
-                <ns1:Width>640</ns1:Width>
-                <ns1:Height>480</ns1:Height>
+                <ns1:Width>100</ns1:Width>
+                <ns1:Height>100</ns1:Height>
             </ns1:VideoProducer>
             <ns1:RewardForTouchingBlockType>
                 <ns1:Block behaviour="onceOnly" reward="10000.0" type="diamond_block"/>
