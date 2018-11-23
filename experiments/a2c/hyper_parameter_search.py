@@ -48,5 +48,6 @@ def generate_a2c_hyper_param_set(number: int,
                 model_params[hyper_param] = random.choice(param_range)
             else:
                 model_params[hyper_param] = random.uniform(*param_range)
+        params.append(model_params)
 
     return params

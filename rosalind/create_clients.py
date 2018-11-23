@@ -40,17 +40,20 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
     try:
         rosiland_connection = RosalindDatabase()
     except:
-        print("Unable to connect to Rosiland Database")
-        print(traceback.format_exc())
+        logger.info("Unable to connect to Rosiland Database")
+        logger.info(traceback.format_exc())
         sys.exit(1)
 
     if "MALMO_MINECRAFT_ROOT" in os.environ:
         minecraft_dir = os.environ["MALMO_MINECRAFT_ROOT"]
     else:
-        print("Unable to find MALMO ROOT DIR! Set $MALMO_MINECRAFT_ROOT!")
+        logger.info("Unable to find MALMO ROOT DIR! Set $MALMO_MINECRAFT_ROOT!")
         sys.exit(1)
 
     virtual_monitor = "xvfb-run -a -e /dev/stdout -s '-screen 0 1400x900x24' "
@@ -66,7 +69,7 @@ if __name__ == '__main__':
 
         while True:
             line = proc.stdout.readline()
-            print(line)
+            logger.info(line)
             if not line:
                 raise EOFError("Minecraft process finished unexpectedly")
             if b"CLIENT enter state: DORMANT" in line:

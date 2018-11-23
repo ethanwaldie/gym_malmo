@@ -36,6 +36,8 @@ def generate_keyboard_markup_for_options(options, labels=None):
         keyboard.append([key])
 
     return InlineKeyboardMarkup(keyboard)
+
+
 def run_experiment_group_button_handler(bot, update:Update, query:CallbackQuery, data):
     """
     This handler manages incoming requests to run certain experiment groups.
