@@ -1,6 +1,5 @@
 import logging
 import traceback
-import json
 import uuid
 
 from telegram.update import Update
@@ -11,7 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from experiments.a2c.hyper_parameter_search import generate_a2c_hyper_param_set
 from experiments.deep_dqn.hyper_parameter_search import generate_dqn_hyper_param_set
 
-from rosalind.experiment_utils import run_new_single_experiment_with_monitoring
+from rosalind.experiment_runners.experiment_utils import run_new_single_experiment_with_monitoring
 
 from rosalind.db.queries import get_user
 

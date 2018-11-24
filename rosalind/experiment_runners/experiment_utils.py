@@ -9,7 +9,7 @@ from multiprocessing import Process
 from experiments.a2c.train import train_a2c
 from experiments.deep_dqn.train import train_dqn
 
-from rosalind.experiment_monitor import ExperimentMonitor
+from rosalind.experiment_runners.experiment_monitor import ExperimentMonitor
 from rosalind.db.connection import RosalindDatabase
 from rosalind.db.schema import Experiments, ClientPool
 from rosalind.db.queries import create_experiment, update_experiment, \

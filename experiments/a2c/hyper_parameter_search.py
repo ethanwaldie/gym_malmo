@@ -29,25 +29,20 @@ def generate_a2c_hyper_param_set(number: int,
     }
 
     hyper_param_ranges = {
-        "nsteps": list(range(5, 10)),
+        "lr": (7e-2, 7e-5),
         "vf_coef": (0, 1),
         "ent_coef": (0.001, 0.1),
         "max_grad_norm": (0, 1),
-        "lr": (7e-3, 7e-5),
-        "epsilon": (1e-4, 1e-6),
-        "alpha": (0.7, 0.99),
-        "gamma": (0.7, 0.99)
     }
 
     params = []
 
     for i in range(number):
-        model_params = base_params
+        model_params = base_params.copy()
         for hyper_param, param_range in hyper_param_ranges.items():
             if isinstance(param_range, list):
                 model_params[hyper_param] = random.choice(param_range)
             else:
                 model_params[hyper_param] = random.uniform(*param_range)
         params.append(model_params)
-
     return params

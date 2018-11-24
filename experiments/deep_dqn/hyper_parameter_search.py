@@ -4,7 +4,8 @@ import random
 def generate_dqn_hyper_param_set(number: int,
                                  network: str="mlp",
                                  total_timesteps=1000000):
-    base_params = {"network": network,
+    base_params = {
+                   "network": network,
                    "seed": None,
                    "lr": 5e-4,
                    "total_timesteps": total_timesteps,
@@ -42,7 +43,7 @@ def generate_dqn_hyper_param_set(number: int,
     params = []
 
     for i in range(number):
-        model_params = base_params
+        model_params = base_params.copy()
         for hyper_param, param_range in hyper_param_ranges.items():
             if isinstance(param_range, list):
                 model_params[hyper_param] = random.choice(param_range)
