@@ -17,12 +17,25 @@ env.init(start_minecraft=False, logger=logger)
 env_fn = lambda: env
 vec_env = DummyVecEnv([env_fn])
 
-params = {"network": "lstm", "seed": None, "nsteps": 5, "vf_coef": 0.7296517437546484, "ent_coef": 0.08170105386305099, "max_grad_norm": 0.28316872667632487, "lr": 0.004572103455541685, "lrschedule": "linear", "epsilon": 7.350402288162664e-06, "alpha": 0.7974457456640998, "gamma": 0.7621534677537529, "log_interval": 1000}
+params = {
+  "lr": 0.0398918521489106,
+  "seed": None,
+  "alpha": 0.99,
+  "gamma": 0.99,
+  "nsteps": 5,
+  "epsilon": 0.00001,
+  "network": "lstm",
+  "vf_coef": 0.515792291405908,
+  "ent_coef": 0.07217431211508817,
+  "lrschedule": "linear",
+  "log_interval": 1000,
+  "max_grad_norm": 0.4278537190622296,
+}
 
 model = a2c.learn(
     env=vec_env,
     total_timesteps=0,
-    load_path='../../rosalind/logs/758dfa59-8e79-4f01-b5bd-91475b28a85e/model.pkl',
+    load_path='../../rosalind/experiment_runners/logs/faaf742d-beac-4645-89ba-f4136afd446f/model.pkl',
     **params)
 
 runner = Runner(vec_env, model, nsteps=params['nsteps'], gamma=params['gamma'])

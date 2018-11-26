@@ -21,7 +21,7 @@
             <FlatWorldGenerator generatorString="3;7,1,2*3;3;"/>
             <DrawingDecorator>
             </DrawingDecorator>
-            <ServerQuitFromTimeUp timeLimitMs="100000"/>
+            <ServerQuitFromTimeUp timeLimitMs="200000"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>

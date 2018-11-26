@@ -2,7 +2,7 @@ import random
 
 
 def generate_a2c_hyper_param_set(number: int,
-                                 total_timesteps=1000000):
+                                 total_timesteps=500000):
     """
     This functions generates model hyper parameter sets which can be used when preforming a hyper parameter search.
 
@@ -18,7 +18,7 @@ def generate_a2c_hyper_param_set(number: int,
         "nsteps": 5,
         "total_timesteps": total_timesteps,
         "vf_coef": 0.5,
-        "ent_coef": 0.01,
+        "ent_coef": 0.07,
         "max_grad_norm": 0.5,
         "lr": 7e-4,
         "lrschedule": "linear",
@@ -29,10 +29,7 @@ def generate_a2c_hyper_param_set(number: int,
     }
 
     hyper_param_ranges = {
-        "lr": (7e-2, 7e-5),
-        "vf_coef": (0, 1),
-        "ent_coef": (0.001, 0.1),
-        "max_grad_norm": (0, 1),
+        "lr": (0.1, 0.001),
     }
 
     params = []

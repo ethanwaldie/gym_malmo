@@ -9,6 +9,7 @@ def train_dqn(log_dir: str,
               client_pool: (str, str),
               tick_speed=10,
               logger=None,
+              record=False,
               network='mlp',
               seed=None,
               lr=5e-4,
@@ -68,9 +69,12 @@ def train_dqn(log_dir: str,
 
     env = gym.make(env_id)
 
-    env.init(start_minecraft=False ,recordDestination=os.path.join(os.environ['OPENAI_LOGDIR'],'recording.tgz'),
-             recordMP4=(10, 400000), client_pool=client_pool, recordRewards=True,
-             recordCommands=True, tick_speed=tick_speed, logger=logger)
+    if record:
+        env.init(start_minecraft=False ,recordDestination=os.path.join(os.environ['OPENAI_LOGDIR'],'recording.tgz'),
+                 recordMP4=(10, 400000), client_pool=client_pool, recordRewards=True,
+                 recordCommands=True, tick_speed=tick_speed, logger=logger)
+    else:
+        env.init(start_minecraft=False, client_pool=client_pool, tick_speed=tick_speed, logger=logger)
 
     menv = Monitor(env, os.path.join(os.environ['OPENAI_LOGDIR'],'monitor.csv'))
 

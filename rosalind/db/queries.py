@@ -29,16 +29,42 @@ def get_experiment(rosalind_connection: RosalindDatabase, experiment_id) -> Expe
     return experiment
 
 
+def get_experiments_by_status(rosalind_connection: RosalindDatabase,
+                              status: str):
+    session = rosalind_connection.session_creator()
+
+    experiments = (session.query(Experiments)
+                   .filter(Experiments.status == status)
+                   .order_by(Experiments.updated_date.desc()).all())
+
+    session.close()
+
+    return experiments
+
+def get_experiments_group_id(rosalind_connection: RosalindDatabase,
+                              group_id: str):
+    session = rosalind_connection.session_creator()
+
+    experiments = (session.query(Experiments)
+                   .filter(Experiments.group_id == group_id)
+                   .order_by(Experiments.updated_date.desc()).all())
+
+    session.close()
+
+    return experiments
+
+
+
 def get_experiments_by_status_df(rosalind_connection: RosalindDatabase,
-                                 status:str,
+                                 status: str,
                                  limit=None):
     session = rosalind_connection.session_creator()
 
     if not limit:
         experiments_df = pd.read_sql(session.query(Experiments)
-                                      .filter(Experiments.status == status)
+                                     .filter(Experiments.status == status)
                                      .order_by(Experiments.updated_date.desc())
-                                      .statement, session.bind)
+                                     .statement, session.bind)
     else:
         experiments_df = pd.read_sql(session.query(Experiments)
                                      .filter(Experiments.status == status)
@@ -101,8 +127,7 @@ def update_experiment(rosalind_connection: RosalindDatabase,
 
 
 def find_and_reserve_client(rosalind_connection: RosalindDatabase,
-                            experiment_id:str) -> str:
-
+                            experiment_id: str) -> str:
     session = rosalind_connection.session_creator()
 
     client_address = None
@@ -128,7 +153,6 @@ def find_and_reserve_client(rosalind_connection: RosalindDatabase,
     return client_address
 
 
-
 def update_client(rosalind_connection: RosalindDatabase,
                   client_address: str, fields: dict):
     session = rosalind_connection.session_creator()
@@ -144,9 +168,10 @@ def update_client(rosalind_connection: RosalindDatabase,
         raise e
     finally:
         session.close()
-        
+
+
 def create_client(rosalind_connection: RosalindDatabase,
-                  client_address:str):
+                  client_address: str):
     session = rosalind_connection.session_creator()
 
     try:
@@ -161,5 +186,3 @@ def create_client(rosalind_connection: RosalindDatabase,
         session.rollback()
     finally:
         session.close()
-
-
