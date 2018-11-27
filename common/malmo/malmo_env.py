@@ -45,6 +45,8 @@ class MalmoEnvironment(gym.Env):
         self.previous_observations = None
         self.num_actions = 0
         self.agent_position = None
+        self._num_resets = 0
+        self._reset_counter = 20
 
     def _load_mission(self, **kwargs) -> MalmoPython.MissionSpec:
         """
@@ -417,11 +419,16 @@ class MalmoEnvironment(gym.Env):
     def reset(self, force_reset=False):
 
         self.num_actions = 0
+
+        self.mission_spec = self._load_mission()
+
         # force new world each time
         if self.forceWorldReset or force_reset:
             self.mission_spec.forceWorldReset()
+        elif self._num_resets % self._reset_counter == 0:
+            logging.info("Forcing WORLD RESET reset_counter {} ".format(self._num_resets))
+            self.mission_spec.forceWorldReset()
 
-        self.mission_spec = self._load_mission()
         # this seemed to increase probability of success in first try
         time.sleep(0.1)
         # Attempt to start a mission

@@ -52,40 +52,15 @@ def run_experiment_group_button_handler(bot, update:Update, query:CallbackQuery,
 
     keyboard = None
 
-    # if "model" in data:
-    #     if data["model"] == "deepq" and "network" not in data:
-    #
-    #         options = ["mlp", "cnn", "cnn_small"]
-    #
-    #         reply_markup = generate_keyboard_markup_for_options(options=options,
-    #                                                         data_key="network",
-    #                                                         data=data)
-    #
-    #         query.message.reply_text('Select a Network for the Policy', reply_markup=reply_markup)
-    #
-    #         return
-    #
-    #     options = ["MalmoDiscreteSimpleHallways-v0",
-    #                "MalmoDiscreteSimpleHallwaysVisual-v0"]
-    #
-    #     reply_markup = generate_keyboard_markup_for_options(options=options,
-    #                                                     data_key="env_id",
-    #                                                     data=data)
-    #
-    #     query.message.reply_text('Select an Environment', reply_markup=reply_markup)
-    #
-    #     return
-
-
     model = data.split("|")[-1]
 
     try:
         if model == "a2c":
-            params = generate_a2c_hyper_param_set(number=20,
+            params = generate_a2c_hyper_param_set(number=10,
                                                   total_timesteps=500000)
 
         elif model == "deepq":
-            params = generate_dqn_hyper_param_set(number=20,
+            params = generate_dqn_hyper_param_set(number=10,
                                                   network="mlp",
                                                   total_timesteps=500000)
         else:

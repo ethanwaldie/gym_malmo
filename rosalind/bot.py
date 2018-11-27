@@ -35,6 +35,7 @@ class RosalindBot(Bot):
         # Hyper parameter search functionality.
         updater.dispatcher.add_handler(CommandHandler('runhypersearch', handlers.run_experiment_group))
         updater.dispatcher.add_handler(CallbackQueryHandler(handlers.button))
+        updater.dispatcher.add_handler(CommandHandler('continuegroup', handlers.restart_experiment_group))
 
         # experiment montioring
         updater.dispatcher.add_handler(CommandHandler('running', handlers.running_experiments))

@@ -41,8 +41,8 @@ def get_experiments_by_status(rosalind_connection: RosalindDatabase,
 
     return experiments
 
-def get_experiments_group_id(rosalind_connection: RosalindDatabase,
-                              group_id: str):
+def get_experiments_by_group_id(rosalind_connection: RosalindDatabase,
+                                group_id: str):
     session = rosalind_connection.session_creator()
 
     experiments = (session.query(Experiments)

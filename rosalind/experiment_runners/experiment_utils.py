@@ -1,6 +1,7 @@
 import logging
 import uuid
 import os
+import shutil
 import time
 import traceback
 import datetime
@@ -13,7 +14,7 @@ from rosalind.experiment_runners.experiment_monitor import ExperimentMonitor
 from rosalind.db.connection import RosalindDatabase
 from rosalind.db.schema import Experiments, ClientPool
 from rosalind.db.queries import create_experiment, update_experiment, \
-    find_and_reserve_client, update_client, get_user, get_experiment
+    find_and_reserve_client, update_client, get_user, get_experiment,get_experiments_by_group_id
 from rosalind.db.types import ClientStatus, ExperimentStatus
 
 _MODELS = {
@@ -36,6 +37,29 @@ def build_log_dir(experiment_id):
     return log_dir
 
 
+def copy_files(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if not os.path.isdir(s):
+            shutil.copy2(s, d)
+
+def save_experiment_checkpoint(log_dir:str):
+    """
+    This function saves a checkpoint of all an experiments log and model definition files, in case of some event
+    that causes a new running experiment to fail.
+
+    :param log_dir:
+    :return:
+    """
+    checkpoint_dir = os.path.join(log_dir, "checkpoint")
+
+    if not os.path.isdir(checkpoint_dir):
+        os.mkdir(checkpoint_dir)
+
+    copy_files(log_dir, checkpoint_dir)
+
+
 def send_message_to_owner(bot, experiment, message):
     """
     This function sends a telegram message to the experiment owner.
@@ -53,7 +77,7 @@ def send_message_to_owner(bot, experiment, message):
 
 def train_model(
         bot,
-        experiment,
+        experiment:Experiments,
         log_dir: str,
         model_runner,
         env_id: str,
@@ -185,3 +209,84 @@ def run_new_single_experiment_with_monitoring(bot,
                       fields={Experiments.pid: training_process.pid})
 
     return experiment
+
+def continue_experiement_with_monitoring(bot,
+                                         user,
+                                         experiment:Experiments,
+                                         total_timesteps:int=500000):
+    """
+    This function picks up a previously completed experiment and continues training it,
+    At start it creates a checkpoint, such that the original experiment results can be recovered.
+
+    :param bot:
+    :param user:
+    :param experiment:
+    :param timesteps:
+    :return:
+    """
+
+    model_runner = _MODELS.get(experiment.model)
+
+    if not model_runner:
+        raise KeyError("The model {} has not been implemented.".format(experiment.model))
+
+    model_params = experiment.model_params
+
+    log_dir = build_log_dir(experiment.id)
+
+    save_experiment_checkpoint(log_dir)
+
+    model_params["load_path"] = os.path.join(log_dir, 'model.pkl')
+    model_params["total_timesteps"] = total_timesteps
+
+    update_experiment(rosalind_connection=bot.db,
+                      experiment_id=experiment.id,
+                      fields={Experiments.total_timesteps: experiment.total_timesteps + total_timesteps,
+                              Experiments.status: ExperimentStatus.PENDING.name,
+                              Experiments.model_params: model_params,
+                              Experiments.owner: user.id})
+
+    try:
+        training_process = Process(target=train_model, args=(bot,
+                                                             experiment,
+                                                             log_dir,
+                                                             model_runner,
+                                                             experiment.env_id,
+                                                             model_params))
+        training_process.start()
+    except Exception as e:
+        tb = traceback.format_exc()
+        send_message_to_owner(bot=bot,
+                              experiment=experiment,
+                              message='The experiment with id {} failed!'
+                                      'Traceback: \n '
+                                      '{}'.format(experiment.id, tb))
+        raise e
+
+    update_experiment(rosalind_connection=bot.db,
+                      experiment_id=experiment.id,
+                      fields={Experiments.pid: training_process.pid})
+
+    return experiment
+
+def continue_experiment_group(bot,
+                             user,
+                             group_id:str,
+                             total_timesteps:int=500000):
+    """
+    This function restarts all experiments within a group and extends them for additional  timesteps.
+
+    :param bot:
+    :param user:
+    :param group_id:
+    :param total_timesteps:
+    :return:
+    """
+
+    experiments = get_experiments_by_group_id(rosalind_connection=bot.db, group_id=group_id)
+
+    for experiment in experiments:
+        continue_experiement_with_monitoring(bot,
+                                             user,
+                                             experiment,
+                                             total_timesteps)
