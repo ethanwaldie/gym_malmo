@@ -7,8 +7,7 @@ import threading
 import json
 
 from rosalind.db.schema import Experiments
-from rosalind.db.queries import get_experiment, update_experiment
-
+from rosalind.db.queries import get_experiment, increment_experiment_timesteps
 
 
 class ExperimentMonitor(threading.Thread):
@@ -18,9 +17,10 @@ class ExperimentMonitor(threading.Thread):
     to date statistics on what experiments are running at a given time.
 
     """
+
     def __init__(self,
-                 log_dir:str,
-                 name:str,
+                 log_dir: str,
+                 name: str,
                  bot,
                  experiment_id,
                  logger):
@@ -67,11 +67,12 @@ class ExperimentMonitor(threading.Thread):
                         total_timesteps = data.get("steps")
 
                     if total_timesteps:
-                        update_experiment(rosalind_connection=self.bot.db,
-                                          experiment_id=self.experiment_id,
-                                          fields={Experiments.current_timestep: total_timesteps})
+                        increment_experiment_timesteps(rosalind_connection=self.bot.db,
+                                                       experiment_id=self.experiment_id,
+                                                       timesteps=total_timesteps)
                     time.sleep(1)
             time.sleep(1)
+
 
 if __name__ == '__main__':
     import logging

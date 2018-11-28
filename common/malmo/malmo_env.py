@@ -11,7 +11,6 @@ from gym import spaces, error
 import MalmoPython
 import common.malmo.malmo_server as minecraft_py
 
-
 SINGLE_DIRECTION_DISCRETE_MOVEMENTS = ["jumpeast", "jumpnorth", "jumpsouth", "jumpwest",
                                        "movenorth", "moveeast", "movesouth", "movewest",
                                        "jumpuse", "use", "attack", "jump"]
@@ -38,7 +37,7 @@ class MalmoEnvironment(gym.Env):
 
         self.agent_host = MalmoPython.AgentHost()
         self.parse_world_state = parse_world_state
-        self.tick_speed=5
+        self.tick_speed = 5
         self.client_pool = None
         self.mc_process = None
         self.screen = None
@@ -47,6 +46,8 @@ class MalmoEnvironment(gym.Env):
         self.agent_position = None
         self._num_resets = 0
         self._reset_counter = 20
+        self.replay_buffer_size = 5
+        self.replay_buffer = []
 
     def _load_mission(self, **kwargs) -> MalmoPython.MissionSpec:
         """
@@ -67,15 +68,33 @@ class MalmoEnvironment(gym.Env):
 
         raise NotImplementedError("If not collecting data from images you must implement a world state parser.")
 
+    def _build_observation_space(self):
+        """
+        This method will be called any time a state parser is detected, it allows for the observation space to be
+        configured to match a specific specification.
+
+        :return:
+        """
+
+        raise NotImplementedError("If you must implement an observation space constructor!")
+
+    def _init_replay_buffer(self):
+
+
+        shape = list(self.observation_space.shape)
+
+        # correct for the replay buffer size in the shape.
+        shape[0] = int(shape[0]/self.replay_buffer_size)
+
+        initial_observation = np.zeros(shape=(tuple(shape)))
+
+        self.replay_buffer = [initial_observation]*self.replay_buffer_size
+
     @staticmethod
     def load_mission_xml_from_file(path: str) -> MalmoPython.MissionSpec:
         with open(path, 'r') as f:
             mission_spec = f.read()
-
         mission_spec = MalmoPython.MissionSpec(mission_spec, True)
-
-        logger.info("Loaded mission: " + mission_spec.getSummary())
-
         return mission_spec
 
     def init(self, client_pool=None,
@@ -87,6 +106,7 @@ class MalmoEnvironment(gym.Env):
              step_sleep=0.001,
              skip_steps=0,
              tick_speed=5,
+             replay_buffer_size=5,
              logger=None,
              videoResolution=None,
              videoWithDepth=None,
@@ -118,6 +138,8 @@ class MalmoEnvironment(gym.Env):
         self.forceWorldReset = forceWorldReset
         self.continuous_discrete = continuous_discrete
         self.add_noop_command = add_noop_command
+
+        self.replay_buffer_size = replay_buffer_size
 
         self.mission_spec = self._load_mission()
         self.logger.info("Loaded mission: " + self.mission_spec.getSummary())
@@ -181,11 +203,16 @@ class MalmoEnvironment(gym.Env):
         self.video_height = self.mission_spec.getVideoHeight(0)
         self.video_width = self.mission_spec.getVideoWidth(0)
         self.video_depth = self.mission_spec.getVideoChannels(0)
-        if not self.parse_world_state:
+        if self.parse_world_state:
+            self._build_observation_space()
+        else:
+
             self.observation_space = spaces.Box(low=0, high=255,
-                                                shape=(self.video_height, self.video_width, self.video_depth))
-        # dummy image just for the first observation
-        self.last_image = np.zeros((self.video_height, self.video_width, self.video_depth), dtype=np.uint8)
+                                                shape=(self.replay_buffer_size*self.video_height,
+                                                       self.video_width,
+                                                       self.video_depth))
+        self.last_image = np.zeros(shape=(self.video_height, self.video_width, self.video_depth))
+
 
         self._create_action_space()
 
@@ -368,6 +395,19 @@ class MalmoEnvironment(gym.Env):
         else:
             return self.previous_observations
 
+    def _update_replay_buffer_and_get_observation(self, observation: np.ndarray):
+        """
+        Updates the replay buffer (analogous to a queue).
+
+        :param observation:
+        :return:
+        """
+
+        self.replay_buffer.insert(0, observation)
+        self.replay_buffer.pop(-1)
+
+        return np.vstack(self.replay_buffer)
+
     def step(self, action):
         # take the action only if mission is still running
         world_state = self.agent_host.peekWorldState()
@@ -407,8 +447,8 @@ class MalmoEnvironment(gym.Env):
         else:
             # take the last frame from world state
             reward = sum([r.getValue() for r in world_state.rewards])
-            obs = self._get_video_frame(world_state)
-
+            obs_frame = self._get_video_frame(world_state)
+            obs = self._update_replay_buffer_and_get_observation(obs_frame)
         if done:
             self.logger.info("Number of actions in iteration {}".format(self.num_actions))
         return obs, reward, done, info
@@ -428,6 +468,8 @@ class MalmoEnvironment(gym.Env):
         elif self._num_resets % self._reset_counter == 0:
             logging.info("Forcing WORLD RESET reset_counter {} ".format(self._num_resets))
             self.mission_spec.forceWorldReset()
+
+        self._num_resets += 1
 
         # this seemed to increase probability of success in first try
         time.sleep(0.1)
@@ -457,6 +499,8 @@ class MalmoEnvironment(gym.Env):
             world_state = self.agent_host.getWorldState()
             for error in world_state.errors:
                 self.logger.warning(error.text)
+
+        self._init_replay_buffer()
 
         self.logger.info("Mission running")
         self.logger.info("Collecting First Observation")

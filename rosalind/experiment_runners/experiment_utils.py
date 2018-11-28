@@ -270,9 +270,9 @@ def continue_experiement_with_monitoring(bot,
     return experiment
 
 def continue_experiment_group(bot,
-                             user,
-                             group_id:str,
-                             total_timesteps:int=500000):
+                              user,
+                              group_id:str,
+                              total_timesteps:int=500000):
     """
     This function restarts all experiments within a group and extends them for additional  timesteps.
 

@@ -125,6 +125,24 @@ def update_experiment(rosalind_connection: RosalindDatabase,
     finally:
         session.close()
 
+def increment_experiment_timesteps(rosalind_connection: RosalindDatabase,
+                                   experiment_id,
+                                   timesteps):
+    session = rosalind_connection.session_creator()
+
+    try:
+        experiment = (session.query(Experiments)
+                      .filter(Experiments.id == experiment_id).scalar())
+
+        experiment.current_timestep += timesteps
+
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+
 
 def find_and_reserve_client(rosalind_connection: RosalindDatabase,
                             experiment_id: str) -> str:

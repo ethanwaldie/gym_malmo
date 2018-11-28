@@ -25,8 +25,6 @@ class SimpleHallwaysVisualEnv(MalmoEnvironment):
 
         super().__init__(parse_world_state=False)
 
-
-
     def __draw_hallways(self):
 
         # south hallway
@@ -72,3 +70,17 @@ class SimpleHallwaysVisualEnv(MalmoEnvironment):
         self.__draw_goals()
 
         return self.mission_spec
+
+if __name__ == '__main__':
+    import gym
+
+    env = SimpleHallwaysVisualEnv()
+    env.init(start_minecraft=False)
+    env.reset(force_reset=True)
+    done = False
+
+    while not done:
+        action = env.action_space.sample()
+        obs, reward, done, info = env.step(action)
+
+    env.close()
