@@ -6,7 +6,7 @@ import logging
 
 def train_a2c(log_dir: str,
               env_id:str,
-              client_pool: (str, str),
+              client_pool: [(str, str)],
               tick_speed=10,
               logger=None,
               record=False,
@@ -55,21 +55,30 @@ def train_a2c(log_dir: str,
 
     # import inside the function to make sure all logging is configured correctly.
     from baselines.a2c import a2c
-    from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
+    from baselines.common.vec_env.shmem_vec_env import ShmemVecEnv
     from baselines.bench.monitor import Monitor
 
-    env = gym.make(env_id)
+    env_fns = []
 
-    if record:
-        env.init(start_minecraft=False ,recordDestination=os.path.join(os.environ['OPENAI_LOGDIR'],'recording.tgz'),
-                 recordMP4=(10, 400000), client_pool=client_pool, recordRewards=True,
-                 recordCommands=True, tick_speed=tick_speed, logger=logger)
-    else:
-        env.init(start_minecraft=False, client_pool=client_pool, tick_speed=tick_speed, logger=logger)
+    spaces = None
 
-    menv = Monitor(env, os.path.join(os.environ['OPENAI_LOGDIR'],'monitor.csv'))
-    env_fn = lambda: menv
-    vec_env = DummyVecEnv([env_fn])
+    for client in client_pool:
+        env = gym.make(env_id)
+
+        if record:
+            env.init(start_minecraft=False ,recordDestination=os.path.join(os.environ['OPENAI_LOGDIR'],'recording.tgz'),
+                     recordMP4=(10, 400000), client_pool=client_pool, recordRewards=True,
+                     recordCommands=True, tick_speed=tick_speed, logger=logger)
+        else:
+            env.init(start_minecraft=False, client_pool=client_pool, tick_speed=tick_speed, logger=logger)
+
+        menv = Monitor(env, os.path.join(os.environ['OPENAI_LOGDIR'],'monitor.csv'))
+        env_fn = lambda: menv
+        env_fns.append(env_fn)
+
+        spaces = (env.observation_space, env.action_space)
+
+    vec_env = ShmemVecEnv(env_fns, spaces=spaces)
 
     act = a2c.learn(
         network=network,

@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
     env = SimpleHallwaysEnv()
     env.init(start_minecraft=False)
-    env.reset(forace_reset=True)
+    env.reset(force_reset=True)
     done = False
 
     while not done:

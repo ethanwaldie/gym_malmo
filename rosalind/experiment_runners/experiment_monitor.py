@@ -36,6 +36,7 @@ class ExperimentMonitor(threading.Thread):
         self.bot = bot
         self.experiment_id = experiment_id
         self.progress_file = os.path.join(log_dir, 'progress.json')
+        self.num_steps = 0
         self._stop_event = threading.Event()
 
     def stop(self):
@@ -64,7 +65,7 @@ class ExperimentMonitor(threading.Thread):
 
                     # dqn logs differently.
                     if not total_timesteps:
-                        total_timesteps = data.get("steps")
+                        total_timesteps = data.get("steps", 0)
 
                     if total_timesteps:
                         increment_experiment_timesteps(rosalind_connection=self.bot.db,
@@ -78,9 +79,10 @@ if __name__ == '__main__':
     import logging
 
     logger = logging.getLogger(__name__)
-    log_dir = '/Users/ethanwaldie/thesis/gym_malmo/rosalind/logs/0bf349cc-0e80-4fc0-abd8-58667b14bed3'
+    log_dir = '/Users/ethanwaldie/thesis/gym_malmo/rosalind/experiment_runners/logs/e3ef5c36-221f-47fd-b280-912ae7f63fb0'
     experiment_monitor = ExperimentMonitor(log_dir=log_dir,
                                            name="ExperimentMonitor-{}".format(1),
+                                           experiment_id='e3ef5c36-221f-47fd-b280-912ae7f63fb0',
                                            bot=None, logger=logger)
 
     experiment_monitor.start()

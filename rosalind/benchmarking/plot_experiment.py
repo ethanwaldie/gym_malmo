@@ -16,7 +16,7 @@ from rosalind.benchmarking.plot_utils import plot_results
 
 def get_experiments_results_plot(bot,
                                 experiment:Experiments,
-                                ylims=(-25000, 5000)):
+                                ylims=(-30000, 10000)):
     """
     This function plots the learning curve for a specified experiment.
 
@@ -47,7 +47,7 @@ def get_experiments_results_plot(bot,
 
 def get_experiment_group_results_plot(bot,
                                  group_id:str,
-                                 ylims=(-25000, 5000)):
+                                 ylims=(-30000, 10000)):
     log_dirs = []
 
     results_dir = build_results_dir()
@@ -93,8 +93,8 @@ if __name__ == '__main__':
     experiments += get_experiments_by_status(bot.db, ExperimentStatus.RUNNING.name)
 
     for experiment in experiments:
-        if experiment.group_id == '583c2454-158c-4c04-bd12-6fc8824d0faa':
+        if experiment.group_id == 'e085e120-1baf-4f3b-84a7-79a899e71a32':
             get_experiments_results_plot(bot, experiment)
 
-    get_experiment_group_results_plot(bot, '583c2454-158c-4c04-bd12-6fc8824d0faa')
+    get_experiment_group_results_plot(bot, 'e085e120-1baf-4f3b-84a7-79a899e71a32')
 

@@ -95,6 +95,7 @@ def create_experiment(rosalind_connection: RosalindDatabase,
             env_id=env_id,
             status=ExperimentStatus.PENDING.name,
             total_timesteps=total_timesteps,
+            current_timestep=0,
             owner=owner.id,
             logs=log_dir,
             model_params=model_params))
@@ -134,7 +135,7 @@ def increment_experiment_timesteps(rosalind_connection: RosalindDatabase,
         experiment = (session.query(Experiments)
                       .filter(Experiments.id == experiment_id).scalar())
 
-        experiment.current_timestep += timesteps
+        experiment.current_timestep = timesteps
 
         session.commit()
     except Exception as e:

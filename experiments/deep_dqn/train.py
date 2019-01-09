@@ -6,7 +6,7 @@ import logging
 
 def train_dqn(log_dir: str,
               env_id:str,
-              client_pool: (str, str),
+              client_pool: [(str, str)],
               tick_speed=10,
               logger=None,
               record=False,
@@ -66,6 +66,11 @@ def train_dqn(log_dir: str,
     from baselines import deepq
     from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
     from baselines.bench.monitor import Monitor
+
+    if len(client_pool) > 1:
+        logging.warning("Too many clients specified for this model. Only 1 will be used!")
+
+    client_address = client_pool[0]
 
     env = gym.make(env_id)
 

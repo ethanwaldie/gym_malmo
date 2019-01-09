@@ -64,6 +64,8 @@ class SimpleHallwaysVisualEnv(MalmoEnvironment):
         with open(self._spec_path, 'r') as f:
             mission_spec = f.read()
 
+        mission_spec.replace("<MsPerTick>5</MsPerTick>", "<MsPerTick>{}</MsPerTick>".format(self.tick_speed))
+
         self.mission_spec = MalmoPython.MissionSpec(mission_spec, True)
 
         self.__draw_hallways()

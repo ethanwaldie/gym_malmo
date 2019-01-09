@@ -81,7 +81,8 @@ def train_model(
         log_dir: str,
         model_runner,
         env_id: str,
-        model_params):
+        model_params,
+        num_envs=1):
     logger = logging.getLogger("experiment-{}".format(experiment.id))
     fh = logging.FileHandler(os.path.join(log_dir, 'train.log'))
     fh.setLevel(logging.INFO)
@@ -95,17 +96,23 @@ def train_model(
                                            experiment_id=experiment.id,
                                            bot=bot, logger=logger)
 
-    client_address = None
+    client_pool=[]
 
-    while not client_address:
-        client_address = find_and_reserve_client(rosalind_connection=bot.db, experiment_id=experiment.id)
-        logger.info("No clients available, waiting for available clients...")
-        time.sleep(10)
+    for i in range(num_envs):
 
-    logger.debug("Reserving Client {}".format(client_address))
+        client_address = None
 
-    client_pool = client_address.split(":")
-    client_pool = [(client_pool[0], int(client_pool[1]))]
+        while not client_address:
+            client_address = find_and_reserve_client(rosalind_connection=bot.db, experiment_id=experiment.id)
+            logger.info("No clients available, waiting for available clients...")
+            time.sleep(10)
+
+        logger.debug("Reserving Client {}".format(client_address))
+
+        client = client_address.split(":")
+        client = (client_pool[0], int(client_pool[1]))
+        client_pool.append(client)
+
 
     try:
 

@@ -55,8 +55,8 @@
             </ObservationFromGrid>
             <ObservationFromFullStats/>
             <VideoProducer want_depth="false">
-              <Width>100</Width>
-                <Height>100</Height>
+              <Width>400</Width>
+                <Height>400</Height>
             </VideoProducer>
         </AgentHandlers>
     </AgentSection>

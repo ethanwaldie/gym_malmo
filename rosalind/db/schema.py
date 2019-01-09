@@ -16,7 +16,7 @@ class Experiments(Base):
     env_id = Column(TEXT, index=True)
     status = Column(VARCHAR(30), index=True)
     pid = Column(INTEGER, index=True)
-    current_timestep = Column(INTEGER, index=True)
+    current_timestep = Column(INTEGER, default=0, index=True)
     total_timesteps = Column(INTEGER, index=True)
     owner = Column(TEXT)
     start_date = Column(TIMESTAMP, default=func.now(), index=True)

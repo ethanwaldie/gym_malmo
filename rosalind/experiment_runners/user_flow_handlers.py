@@ -56,11 +56,11 @@ def run_experiment_group_button_handler(bot, update:Update, query:CallbackQuery,
 
     try:
         if model == "a2c":
-            params = generate_a2c_hyper_param_set(number=10,
+            params = generate_a2c_hyper_param_set(number=5,
                                                   total_timesteps=500000)
 
         elif model == "deepq":
-            params = generate_dqn_hyper_param_set(number=10,
+            params = generate_dqn_hyper_param_set(number=5,
                                                   network="mlp",
                                                   total_timesteps=500000)
         else:

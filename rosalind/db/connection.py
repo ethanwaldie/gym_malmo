@@ -8,8 +8,10 @@ from rosalind.db.schema import Base
 class RosalindDatabase:
 
     def __init__(self):
-
-        self._url = "postgresql://rosiland:minecraft@localhost:5432/rosiland"
+        if os.environ.get("RUNTIME_MODE") == "TEST":
+            self._url = "postgresql://rosiland:minecraft@localhost:5432/rosiland_test"
+        else:
+            self._url = "postgresql://rosiland:minecraft@localhost:5432/rosiland"
 
         self.db_engine = create_engine(self._url)
 

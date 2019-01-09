@@ -28,8 +28,7 @@
     <AgentSection mode="Survival">
         <Name>Hal5000</Name>
         <AgentStart>
-            <Placement x="0.5" y="2
-" z="0.5" yaw="-90"/>
+            <Placement x="0.5" y="2" z="0.5" yaw="-90"/>
         </AgentStart>
         <AgentHandlers>
             <AgentQuitFromTouchingBlockType>
@@ -48,8 +47,8 @@
             </DiscreteMovementCommands>
             <ObservationFromFullStats/>
             <VideoProducer want_depth="false">
-                <Width>100</Width>
-                <Height>100</Height>
+                <Width>64</Width>
+                <Height>64</Height>
             </VideoProducer>
         </AgentHandlers>
     </AgentSection>

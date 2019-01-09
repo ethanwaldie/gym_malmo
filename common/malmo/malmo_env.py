@@ -510,7 +510,9 @@ class MalmoEnvironment(gym.Env):
             obs, _ = self._world_state_parser(world_state)
             return obs
         else:
-            return self._get_video_frame(world_state)
+            obs_frame = self._get_video_frame(world_state)
+            obs = self._update_replay_buffer_and_get_observation(obs_frame)
+            return obs
 
     def close(self):
         if hasattr(self, 'mc_process') and self.mc_process:
