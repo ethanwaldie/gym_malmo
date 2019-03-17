@@ -1,6 +1,8 @@
 ## Gym Malmo 
-A collection of Mincraft based environments for conducting reinforcement learning experiments under partial observability.
+A collection of Mincraft based environments for conducting reinforcement learning experiments under partial observability. 
 
+#### *Update*
+This repository in addition to implementing minecraft environments, also implements an "experiment" runner that manages a fixed number of open malmo clients and allows batches of experiments to share this pooled resource. It also implements logging and organization of model outputs, a database for viewing experiments, and a telegram bot for getting updates on these experiments. In the future I will be releasing this experiment runner in a stand-alone package for benchmarking RL agents in an efficent manner. For my most recent projects I have migrated to the VizDoom environment. 
 
 #### Partial Observability 
 
